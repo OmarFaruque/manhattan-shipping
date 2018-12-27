@@ -44,11 +44,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</label>
 				</th>
 				<td class="forminp">
-					<select multiple="multiple" data-attribute="zone_locations" id="zone_locations" name="zone_locations" data-placeholder="<?php esc_html_e( 'Select regions within this zone', 'woocommerce' ); ?>" class="wc-shipping-zone-region-select chosen_select">
+					<select data-attribute="zone_locations" id="zone_locations" name="zone_locations" data-placeholder="<?php esc_html_e( 'Select regions within this zone', 'woocommerce' ); ?>" class="wc-shipping-zone-region-select chosen_select">
 						<?php
-						$exstates = ($_REQUEST['zone_id'] != 'new')?json_decode($exstZone->state):array();
 						foreach($states as $k => $sStt){
-							$stctd = ($_REQUEST['zone_id'] != 'new' && in_array($k, $exstates))?'selected':'';
+							$stctd = ($_REQUEST['zone_id'] != 'new' && $k == $exstZone->state)?'selected':'';
 							echo '<option '.$stctd.' value="'.$k.'">'.$sStt.'</option>';
 						}
 						?>
@@ -132,6 +131,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->charge:''; ?>" class="wc-shipping-zone-region-select" />
 				</td>
 		</tr>
+		<?php if(isset($_REQUEST['zone_id']) && $_REQUEST['zone_id'] != 'new'): ?>
+		<tr>
+			<th>
+				<?php echo _e('Permalink', 'easy');  ?>
+			</th>
+			<td class="forminp">
+				<?php echo get_home_url() . '/?cid=' . $exstZone->id; ?>
+			</td>
+		</tr>
+		<?php endif; ?>
 	</tbody>
 </table>
 

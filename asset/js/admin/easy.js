@@ -60,9 +60,9 @@ jQuery(document).ready(function($){
             data : formData,
             url : easyAjax,
             success:function(data){
-            	console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
+                	window.location.replace(easy.easy_page);
                 }
             }
         });
@@ -93,9 +93,9 @@ jQuery(document).ready(function($){
             data : formData,
             url : easyAjax,
             success:function(data){
-            	console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
+                	window.location.replace(easy.easy_page);
                 }
             }
         });
@@ -156,7 +156,12 @@ jQuery(document).ready(function($){
 	jQuery(document).on('change', 'select#cityprice', function(){
 		var thisText = jQuery(this).find('option:selected').text();
 		var thisVal = $('select[name="cityprice"]').val();
-		var output = '<p class="form-field singleLocationPrice"><label for="elp_price">'+thisText+' ('+woocommerce_admin_meta_boxes.currency_format_symbol+')</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_price['+thisVal+']" id="_elp_price_'+thisVal+'" value="" placeholder=""><span class="deletelocationPrice"><span class="dashicons dashicons-no-alt"></span></span></p>';
+		var output = '<div class="locationpricesinglewrap"><p class="form-field singleLocationPrice">';
+		output +='<label for="elp_price"><strong>'+thisText+'</strong> (Regular price)</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_price['+thisVal+']" id="_elp_price_'+thisVal+'" value="" placeholder=""><span class="deletelocationPrice"><span class="dashicons dashicons-no-alt"></span></span>';
+		output +='</p>';
+		output += '<p class="form-field singleRegularLocationPrice">';
+		output +='<label for="elp_sales_price"><strong>'+thisText+'</strong> (Sales price)</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_sales_price['+thisVal+']" id="_elp_sales_price_'+thisVal+'" value="" placeholder="">';
+		output +='</p></div>';
 		jQuery(output).insertAfter(jQuery(this).closest('p.cityprice_field'));
 		jQuery(this).find('option:selected').remove();
 	});
@@ -187,13 +192,13 @@ jQuery(document).ready(function($){
                 if(data.message == 'success'){
                 	$("#woocommerce-product-data").unblock();
                 	select.append(newOp);
-                	thisItem.closest('p.singleLocationPrice').remove();
+                	thisItem.closest('div.locationpricesinglewrap').remove();
                 }
             }
         });
 		}else{
 			$("#woocommerce-product-data").unblock();
-			thisItem.closest('p.singleLocationPrice').remove();
+			thisItem.closest('div.locationpricesinglewrap').remove();
 		}
 
 	});

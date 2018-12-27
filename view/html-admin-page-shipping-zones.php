@@ -28,10 +28,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php 
 		$output ='';
 		foreach($allships as $s_ship){
-			$states = json_decode($s_ship->state);
-			$statArray = array();
-			for($i=0; $i<count($states); $i++) array_push($statArray, WC()->countries->get_states( $s_ship->country_name )[$states[$i]]);
-			
 			$output .= '<tr data-id="'.$s_ship->id.'">';
 			$output .= '<td width="1%" class="wc-shipping-zone-sort"></td>';
 			$output .= '<td class="wc-shipping-zone-name">
@@ -41,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 					</td>';
 			$output .= '<td class="wc-shipping-city">'.$s_ship->city.'</td>';
-			$output .= '<td class="wc-shipping-state">'.implode(', ', $statArray).'</td>';
+			$output .= '<td class="wc-shipping-state">'.WC()->countries->get_states( $s_ship->country_name )[$s_ship->state].'</td>';
 			$output .= '<td width="1%" class="wc-shipping-min">'.get_woocommerce_currency_symbol(). $s_ship->min_amount.'</td>';
 			$output .= '<td width="1%" class="wc-shipping-max">'.get_woocommerce_currency_symbol().$s_ship->max_amount.'</td>';
 			$output .= '<td class="wc-shipping-charge">'.get_woocommerce_currency_symbol().$s_ship->charge.'</td>';

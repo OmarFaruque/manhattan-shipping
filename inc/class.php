@@ -15,6 +15,7 @@ if (!class_exists('manhattan_shippingClass')) {
         public $easy_shipping; 
         public $easy_ziptable; 
         public $postmeta; 
+        public $posts;
         
     
         /**Plugin init action**/ 
@@ -26,6 +27,7 @@ if (!class_exists('manhattan_shippingClass')) {
             $this->easy_ziptable            = $this->wpdb->prefix . 'easy_ziptable';	
             $this->easy_shipping            = $this->wpdb->prefix . 'easy_shipping';
             $this->postmeta                 = $this->wpdb->prefix . 'postmeta';
+            $this->posts                    = $this->wpdb->prefix . 'posts';
          
             $this->init();
             $this->db();
@@ -141,7 +143,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
             if(get_option( 'easy_shipping', 0 ) == 1):
             /********** Change Product price by Shipping Location ***********/
-            add_filter('woocommerce_product_get_regular_price', array( $this, 'easy_shipping_dynamic_price'), 99);
+            add_filter('woocommerce_product_get_regular_price', array( $this, 'easy_shipping_regular_dynamic_price'), 99);
             add_filter('woocommerce_product_get_price', array( $this, 'easy_shipping_dynamic_price'), 99);
 
             /*=========== S E T  S H I P I N G   A R E A   A S  P R O D U C T  T A X A N O M Y ===========*/
@@ -182,25 +184,52 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action( 'manage_shop_order_posts_custom_column' , array($this, 'custom_shop_order_column'), 10, 2 );
 
             /*=== After Complete Order ===*/
-            add_action( 'woocommerce_order_status_completed', array($this, 'wc_set_order_city_after_order_place') );
+            add_filter( 'parse_query', array($this, 'wporder_posts_filter') );
+            
             endif;
 
 
         } // End init()
 
 
+        function wporder_posts_filter($query){
+            global $pagenow;
+            $type = 'shop_order';
+            if (isset($_GET['post_type'])) {
+                $type = $_GET['post_type'];
+            }
+
+            if ( 'shop_order' == $type && is_admin() && $pagenow=='edit.php' && isset($_GET['meta-city']) && $_GET['meta-city'] != '') {
+                echo 'inside class function ooooo <br/>';
+                $query->query_vars['meta_key'] = '_shipping_city';
+                $query->query_vars['meta_value'] = $_GET['meta-city'];
+            }
+        }
+
         function admin_posts_filter_restrict_manage_posts_by_taxonomy(){
-            if (isset($_GET['post_type']) && 'product' == $_GET['post_type'] || 'shop_order' == $_GET['post_type']){
+            if (isset($_GET['post_type']) && 'product' == $_GET['post_type']){
                $terms = get_terms( 'available-city', array(
                     'hide_empty' => true,
                 ) );
                echo "<select name='available-city' id='available-city' class='postform'>";
-               echo '<option value="">' . sprintf( esc_html__( 'Show All %s', 'text_domain' ), 'Available City' ) . '</option>';
+               echo '<option value="">' . sprintf( esc_html__( 'Show All %s', 'easy' ), 'Available City' ) . '</option>';
                foreach($terms as $sterms){
                     $selected = (isset($_REQUEST['available-city']) && $_REQUEST['available-city'] == $sterms->slug)?'selected':'';
                     echo '<option '.$selected.' value="'.$sterms->slug.'">'.$sterms->name.'</option>';
                }
                echo '</select>';
+            }elseif(isset($_GET['post_type']) && 'shop_order' == $_GET['post_type']){
+                $allCitys = $this->wpdb->get_results('SELECT `meta_value` FROM '.$this->postmeta.' pm LEFT JOIN '.$this->posts.' p ON pm.`post_id`=p.`ID` WHERE p.`post_type`="shop_order" AND pm.`meta_key`="_billing_city"', OBJECT);
+
+                echo '<select name="meta-city" id="meta-city" class="post-meta">';
+                    echo '<option value="">'. sprintf(esc_html__('Show All %s', 'easy'), 'City'  ) .'</option>';
+                    foreach($allCitys as $sc){
+                        $sltd = (isset($_REQUEST['meta-city']) && $_REQUEST['meta-city'] == $sc->meta_value)?'selected':'';
+                        echo '<option '.$sltd.' value="'.$sc->meta_value.'">'.$sc->meta_value.'</option>';
+                    }
+                echo '</select>';
+
+                
             }
         }
 
@@ -345,11 +374,11 @@ if (!class_exists('manhattan_shippingClass')) {
 
             $dStates = array();
             foreach($allData as $sSt){
-                $sDSate = json_decode($sSt->state);                
+                //$sDSate = json_decode($sSt->state);                
                 if (!array_key_exists($sSt->country_name, $dStates)) $dStates[$sSt->country_name] = array();
-                foreach($sDSate as $sSate){
-                   if(!in_array($sSate, $dStates[$sSt->country_name])) $dStates[$sSt->country_name][] =  $sSate;
-                }
+                //foreach($sDSate as $sSate){
+                if(!in_array($sSt->state, $dStates[$sSt->country_name])) $dStates[$sSt->country_name][] =  $sSt->state;
+               // }
             }
             return $dStates;
         }
@@ -361,6 +390,9 @@ if (!class_exists('manhattan_shippingClass')) {
         * this function return voter candidate using crosel
         */
         function frontendmanhattan_shipping(){
+            if(isset($_REQUEST['cid'])){
+             $extdata = $this->wpdb->get_row('SELECT * FROM '.$this->easy_shipping.' WHERE id='.$_REQUEST['cid'].'', OBJECT);
+            }
             $defaultSates = WC()->countries->get_states( 'US' );
             $home = (is_front_page() || is_home())?true:false;
             if(get_option( 'easy_shipping', 0 ) == 1){
@@ -389,7 +421,7 @@ if (!class_exists('manhattan_shippingClass')) {
             unset($_REQUEST['action']);
             $data = $_REQUEST;
             $ziparray  = ($_REQUEST['zipcode'] != '')?explode(',', $_REQUEST['zipcode']):array();
-            $data['state'] = json_encode($data['state']);
+            //$data['state'] = json_encode($data['state']);
 
             if(!isset($data['id'])){
                 $insert = $this->wpdb->insert(
@@ -428,7 +460,7 @@ if (!class_exists('manhattan_shippingClass')) {
                 $zipesyid = $data['id'];
             }
             
-            if(count($ziparray) > 1):
+            if(count($ziparray) > 0):
                 foreach($ziparray as $szip):
                             $inserzip = $this->wpdb->insert(
                                 $this->easy_ziptable,
@@ -619,6 +651,23 @@ if (!class_exists('manhattan_shippingClass')) {
             );
         } // End Taxonomy
 
+        function easy_shipping_regular_dynamic_price(){
+            global $post, $woocommerce;
+          if(isset($_COOKIE['easy_city'])){
+              $cityname = $_COOKIE['easy_city'];
+              $terms = get_term_by('name', $cityname, 'available-city');
+              $term_id = $terms->term_id;
+
+              $lPrice = get_post_meta( $post->ID, '_elp_price_'.$term_id, true );
+          }
+
+              //Logic for calculating the new price here
+          $new_price = (isset($_COOKIE['easy_city']) && $lPrice)?$lPrice:$original_price;//$original_price * 2;
+
+          //Return the new price (this is the price that will be used everywhere in the store)
+          return $new_price;
+        }
+
         /*
         * Change Product Price
         */
@@ -629,7 +678,7 @@ if (!class_exists('manhattan_shippingClass')) {
               $terms = get_term_by('name', $cityname, 'available-city');
               $term_id = $terms->term_id;
 
-              $lPrice = get_post_meta( $post->ID, '_elp_price_'.$term_id, true );
+              $lPrice = get_post_meta( $post->ID, '_elp_sales_price_'.$term_id, true );
           }
 
           //Logic for calculating the new price here
@@ -706,6 +755,8 @@ if (!class_exists('manhattan_shippingClass')) {
     global $post;      
     $postAllLPrices = $this->wpdb->get_results('SELECT * FROM '.$this->postmeta.' WHERE meta_key LIKE "_elp_price_%" AND post_id='.$post->ID.'', OBJECT);
 
+    $postAllSalesPrices = $this->wpdb->get_results('SELECT * FROM '.$this->postmeta.' WHERE meta_key LIKE "_elp_sales_price_%" AND post_id='.$post->ID.'', OBJECT);
+
     $existTerms = array();
     foreach($postAllLPrices as $sTerm){
         $sKey = str_replace('_elp_price_', '', $sTerm->meta_key);
@@ -731,26 +782,36 @@ if (!class_exists('manhattan_shippingClass')) {
 
       woocommerce_wp_select( $select_field );
 
-      foreach($postAllLPrices as $sk){
+      foreach($postAllLPrices as $k => $sk){
         $locationKey = str_replace('_elp_price_', '', $sk->meta_key);
         $getTerm = get_term_by('id', (int)$locationKey, 'available-city');
 
-        echo '<p class="form-field singleLocationPrice"><label for="elp_price">'.$getTerm->name.' ('.get_woocommerce_currency_symbol().')</label><input type="number" step="0.01" min="0" class="short" style="" name="_elp_price['.$locationKey.']" id="_elp_price_'.$locationKey.'" value="'.$sk->meta_value.'" placeholder=""><span class="deletelocationPrice" data-name="'.$getTerm->name.'" data-tax_id="'.$locationKey.'"><span class="dashicons dashicons-no-alt"></span></span></p>';
+        echo '<div class="locationpricesinglewrap"><p class="form-field singleLocationPrice"><label for="elp_price"><strong>'.$getTerm->name.'</strong> ('.__('Regular price', 'easy').')</label><input type="number" step="0.01" min="0" class="short" style="" name="_elp_price['.$locationKey.']" id="_elp_price_'.$locationKey.'" value="'.$sk->meta_value.'" placeholder=""><span class="deletelocationPrice" data-name="'.$getTerm->name.'" data-tax_id="'.$locationKey.'"><span class="dashicons dashicons-no-alt"></span></span></p>
+
+            <p class="form-field singleRegularLocationPrice"><label for="elp_sales_price"><strong>'.$getTerm->name.'</strong> ('.__('Sales price', 'easy').')</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_sales_price['.$locationKey.']" id="_elp_sales_price_'.$locationKey.'" value="'.$postAllSalesPrices[$k]->meta_value.'" placeholder=""></p>
+        </div>';
       }
 
     } // end locationbasedproductprice
 
     function savelocationbasedprice($post_id){
          $locationPrices = isset( $_POST['_elp_price'] ) ? $_POST['_elp_price'] : array();
+         $locationSalesPrices = isset( $_POST['_elp_sales_price'] ) ? $_POST['_elp_sales_price'] : array();
+
          $product = wc_get_product( $post_id );
          foreach($locationPrices as $k => $slP):
             $product->update_meta_data( '_elp_price_' . $k, $slP );
+            $product->update_meta_data( '_elp_sales_price_' . $k, $locationSalesPrices[$k] );
          endforeach;
          $product->save();
     } // End Class
 
     function easyAdminheadHook(){
-
+        echo '<script>
+            var easy = {
+                easy_page:"'.admin_url( 'admin.php?page=wc-settings&tab=easy_shipping', 'easy' ).'"
+                } 
+        </script>';
     }
 
     /*
@@ -765,6 +826,13 @@ if (!class_exists('manhattan_shippingClass')) {
             array('post_id' => $post_id, 'meta_key' => '_elp_price_'.$tax_id),
             array('%s', '%s')
         );
+        $delete1 = $this->wpdb->delete(
+            $this->postmeta,
+            array('post_id' => $post_id, 'meta_key' => '_elp_sales_price_'.$tax_id),
+            array('%s', '%s')
+        );
+
+        
         $msg = ($delete)?'success':'fail';
         echo json_encode( array(
             'message' => $msg, 
@@ -852,16 +920,13 @@ if (!class_exists('manhattan_shippingClass')) {
 
     function typeDeliveryAutoFill(){
         $req = $_REQUEST['term'];
-        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['term'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['term'].'%"';
+        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['term'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['term'].'%" OR es.`city` LIKE "%'.$_REQUEST['term'].'%"';
         $eQuery = $this->wpdb->get_results($qerDeliver, OBJECT);
 
         $output = array();
 
         foreach($eQuery as $sd){
-            $states = json_decode($sd->state);
-            foreach($states as $st){
-                $output[$sd->s_id] = WC()->countries->countries[ $sd->country_name ] . ' > ' . WC()->countries->get_states($sd->country_name )[$st] . ' > ' . $sd->city . ' > ' . $sd->delivery_area . ' > ' . $sd->zipcode;    
-            }
+                $output[$sd->s_id] = WC()->countries->countries[ $sd->country_name ] . ' > ' . WC()->countries->get_states($sd->country_name )[$sd->state] . ' > ' . $sd->city . ' > ' . $sd->delivery_area . ' > ' . $sd->zipcode;    
         }
         echo json_encode( $output );
         die();
@@ -877,10 +942,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
         $qry = 'SELECT `country_name`, `state`, `city`, `delivery_area` FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE ez.`zipcode`="'.$endvalue.'"';
         $rowQry = $this->wpdb->get_row($qry, OBJECT);
-
-        $rowQry->state = json_decode( $rowQry->state );
-        $rowQry->state = $rowQry->state[0];
-
+        
         echo json_encode( 
             array(
                 'message' => 'success',
@@ -900,23 +962,15 @@ if (!class_exists('manhattan_shippingClass')) {
         switch ( $column ) {
 
             case 'city' :
-                $terms = get_the_term_list( $post_id , 'available-city' , '' , ', ' , '' );
-                if ( is_string( $terms ) )
-                    echo $terms;
+                $city = get_post_meta( $post_id, '_shipping_city', true );
+                if ( $city  )
+                    echo $city;
                 else
                     _e( 'Unable to get City(s)', 'easy' );
             break;
 
         }
     } // End custom_shop_order_column()
-
-
-    function wc_set_order_city_after_order_place($order_id){
-        $order = wc_get_order( $order_id );
-        $order_data = $order->get_data(); // The Order data
-        $order_shipping_city = $order_data['shipping']['city'];
-        wp_set_post_terms( $order_id, $order_shipping_city, 'available-city' );
-    }
 
 
     } // End Class

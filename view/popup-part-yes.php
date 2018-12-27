@@ -12,14 +12,14 @@
                     endif;  // Enc Country
 
                     if(get_option( 'v_state', 'yes' ) == 'yes'):
-                    $stateReadonly = (count($states, COUNT_RECURSIVE) <=2)?'disabled="disabled"':'';
+                    $stateReadonly = (count($states, COUNT_RECURSIVE) <=2 || isset($extdata))?'disabled="disabled"':'';
                     $output .='<select '.$stateReadonly.' name="state" class="chosen_select select2" id="sate">';
                       $output .=(count($states, COUNT_RECURSIVE) >2)?'<option value="">'.__('Select State', 'woocommerce').'...</option>':'';
                         if(get_option( 'v_country', 'yes' ) != 'yes' || count($states) <= 1):
                         foreach($states as $k => $sGroup){
                             $output .='<optgroup label="'.WC()->countries->countries[ $k ].'">';
                             foreach($sGroup as $sOption){
-                                $selected = (isset($_COOKIE['easy_state']) && $sOption == $_COOKIE['easy_state'])?'selected':'';
+                                $selected = (isset($extdata) && $sOption == $extdata->state)?'selected':'';
                                 $output .='<option '.$selected.' data-cntrycode="'.$k.'" value="'.$sOption.'">'.WC()->countries->get_states( $k )[$sOption].'</option>';
                             }
                             $output .='</optgroup>';
@@ -31,13 +31,16 @@
                     // End Country
 
                     if(get_option( 'v_city', 'yes' ) == 'yes'):
-                    $output .='<select id="city" name="city" class="select2">
+                    $dsabcity = (isset($extdata))?'disabled':''; 
+                    $output .='<select '.$dsabcity.' id="city" name="city" class="select2" >
                         <option value="">'.__('Select City...', 'woocommerce').'...</option>';
 
-                        if(isset($_COOKIE['easy_city'])) $output.='<option selected value="'.$_COOKIE['easy_city'].'">'.$_COOKIE['easy_city'].'</option>';
-                         if(get_option( 'v_country', 'yes' ) == 'no' && get_option( 'v_state', 'yes' ) == 'no'){
+                        if(isset($extdata)){
+                            $output.='<option selected value="'.$extdata->city.'">'.$extdata->city.'</option>';
+                        }
+                        if(get_option( 'v_country', 'yes' ) == 'no' && get_option( 'v_state', 'yes' ) == 'no'){
                             foreach($allcities as $sC) $output.='<option data-cnt="'.$sC->country_name.'" value="'.$sC->city.'">'.$sC->city.'</option>';
-                         }
+                        }
                         
                     $output.='</select>';
                     endif;  
@@ -47,6 +50,12 @@
                     $output.='<select id="area" name="area" class="select2">
                       <option value="">'.__('Area...', 'woocommerce').'</option>';
                       if(isset($_COOKIE['easy_area'])) $output.='<option selected value="'.$_COOKIE['easy_area'].'">'.$_COOKIE['easy_area'].'</option>';
+                      if(isset($extdata)){
+                        $deliveyAreas = $this->wpdb->get_results('SELECT `delivery_area` FROM '.$this->easy_shipping.' WHERE city="'.$extdata->city.'"', OBJECT);
+                        foreach($deliveyAreas as $sa){
+                            $output.='<option value="'.$sa->delivery_area.'">'.$sa->delivery_area.'</option>';
+                        }
+                      }
                     $output.='</select>';
                     // End Area Selection
 

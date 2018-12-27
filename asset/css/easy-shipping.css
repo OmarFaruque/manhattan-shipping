@@ -159,7 +159,8 @@ input#easy_locationSave:disabled:hover{
 .mb-4{margin-bottom: 4em;}
 .mb-5{margin-bottom: 5em;}
 
-.ui-menu{z-index: 99999;}
+.ui-widget.ui-widget-content,
+.ui-menu{z-index: 999999999;}
 #deliverAreaForm .ui-autocomplete-loading {
     background: white url("images/ui-anim_basic_16x16.gif") 98% center no-repeat;
     width: 100%;

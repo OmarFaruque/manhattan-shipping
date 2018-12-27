@@ -18,7 +18,8 @@ echo '<script>
     v_country:"'.get_option( 'v_country', 'yes' ).'",
     v_state:"'.get_option( 'v_state', 'yes' ).'",
     v_city:"'.get_option( 'v_city', 'yes' ).'",
-    v_popup2:"'.get_option( 'v_popup2', 'yes' ).'"
+    v_popup2:"'.get_option( 'v_popup2', 'yes' ).'",
+    permalinkcity:"'.$extdata->city.'"
   };
 </script>';
 
