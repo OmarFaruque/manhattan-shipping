@@ -920,13 +920,15 @@ if (!class_exists('manhattan_shippingClass')) {
 
     function typeDeliveryAutoFill(){
         $req = $_REQUEST['term'];
-        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['term'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['term'].'%" OR es.`city` LIKE "%'.$_REQUEST['term'].'%"';
+        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON ez.`s_id`=es.`id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['term'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['term'].'%" OR es.`city` LIKE "%'.$_REQUEST['term'].'%"';
         $eQuery = $this->wpdb->get_results($qerDeliver, OBJECT);
 
         $output = array();
 
         foreach($eQuery as $sd){
-                $output[$sd->s_id] = WC()->countries->countries[ $sd->country_name ] . ' > ' . WC()->countries->get_states($sd->country_name )[$sd->state] . ' > ' . $sd->city . ' > ' . $sd->delivery_area . ' > ' . $sd->zipcode;    
+                $otp = WC()->countries->countries[ $sd->country_name ] . ' > ' . WC()->countries->get_states($sd->country_name )[$sd->state] . ' > ' . $sd->city . ' > ' . $sd->delivery_area;
+                if($sd->zipcode != '') $otp .= ' > ' . $sd->zipcode;    
+                $output[] = $otp;
         }
         echo json_encode( $output );
         die();
@@ -940,7 +942,13 @@ if (!class_exists('manhattan_shippingClass')) {
         $vals = explode(' > ', $_REQUEST['val']);
         $endvalue = end($vals);
 
-        $qry = 'SELECT `country_name`, `state`, `city`, `delivery_area` FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE ez.`zipcode`="'.$endvalue.'"';
+        $qry = 'SELECT `country_name`, `state`, `city`, `delivery_area` FROM '.$this->easy_shipping.' es';
+        if(count($vals) > 4):
+            $qry .= ' LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE ez.`zipcode`="'.$endvalue.'"';
+        else:
+            $qry .= ' WHERE es.`delivery_area`="'.$endvalue.'"';
+        endif;
+
         $rowQry = $this->wpdb->get_row($qry, OBJECT);
         
         echo json_encode( 
