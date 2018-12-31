@@ -228,7 +228,7 @@ jQuery(document).ready(function($){
             data : fromData,
             url : easyAjax,
             success:function(data){
-            	console.log(data);
+            	//console.log(data);
                 if(data.message == 'success'){
                 	$(".woocommerce table.form-table").unblock();
 
@@ -239,5 +239,119 @@ jQuery(document).ready(function($){
 	});
 
 
+	/*
+	* Easy Admin Seach on list
+	*/
+	jQuery(document.body).on('click', 'button#easy_earch_button', function(e){
+		e.preventDefault();
+		$(".woocommerce table.wc-shipping-zones.widefat").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
+		var serchvar  = $('input#search_easy').val();
+		var fromData = {
+			action: 'adminSearchDB',
+			search: serchvar
+		};
+		var htmle = '';
+		$.ajax({
+            type : 'post',
+            dataType: 'json',
+            data : fromData,
+            url : easyAjax,
+            success:function(data){
+            	console.log(data);
+                if(data.message == 'success'){
+                	$(".woocommerce table.wc-shipping-zones.widefat").unblock();
+					$.each(data.results, function(v, k){
+						console.log('K '+ k.s_id);
+						htmle +='<tr data-id="'+k.s_id+'"><td width="1%" class="wc-shipping-zone-select">'
+						+'<input value="'+k.s_id+'" type="checkbox" name="selecteasy[]">'
+					+'</td><td class="wc-shipping-zone-name">'
+						+'<a href="'+easy.easy_page+'&zone_id='+k.s_id+'">'+k.delivery_area+'</a>'
+						+'<div class="row-actions">'
+							+'<a href="'+easy.easy_page+'&zone_id='+k.s_id+'">Edit</a> | <a href="#" class="easy_shipping_d wc-shipping-zone-delete">Delete</a>'
+						+'</div>'
+						+'</td><td class="wc-shipping-city">'+k.city+'</td>'
+						+'<td class="wc-shipping-state">'+k.state+'</td>'
+						+'<td width="1%" class="wc-shipping-min">'+easy.wc_currency_samble+k.min_amount+'</td>'
+						+'<td width="1%" class="wc-shipping-max">'+easy.wc_currency_samble+k.max_amount+'</td>'
+						+'<td class="wc-shipping-charge">'+easy.wc_currency_samble+k.charge+'</td></tr>'
+					});
+
+					jQuery('.woocommerce table.wc-shipping-zones.widefat').find('tbody').slideUp('slow', function(){
+						jQuery('.woocommerce table.wc-shipping-zones.widefat').find('tbody').html(htmle);
+						jQuery('.woocommerce table.wc-shipping-zones.widefat').find('tbody').slideDown('slow');
+					});
+                }
+            }
+        });
+		
+	});
+
+	/*
+	* All checkbox select using single click
+	*/
+	jQuery(document.body).on('click', 'input#selectalleasy', function(){
+		if($(this).is(':checked')){
+			$('input[name="selecteasy[]').click();
+			$('input[name="selectalleasy"]').prop('checked', true);
+		}else{
+			$('input[name="selecteasy[]"], input[name="selectalleasy"]').prop('checked', false);
+			$('div.editarea_wrap').remove();
+		}
+	});
+
+	jQuery(document.body).on('change', 'input[name="selecteasy[]"]', function(){
+		$('div.editarea_wrap').remove();
+		var output = '<div class="editarea_wrap">'
+			+'<div id="edit_multiple_area">'
+			+'<label for="change_area">Change Neighborhoods</label>'
+			+'<input type="text" id="change_area" name="change_area" class="form-control" />'
+			+'<button disabled type="submit" id="actionNeighborChange" class="button button-primary">Change</button>'
+			+'</div></div>';
+		if($('input[name="selecteasy[]"]:checkbox:checked').length > 0){
+			$(output).insertAfter($(this).closest('table'));
+		}
+	});
+
+	/* 
+	* Active button if multiple change text
+	*/
+	jQuery(document.body).on('keyup', 'input#change_area', function(){
+		if($(this).val() != ''){
+			$('button#actionNeighborChange').prop('disabled', false);
+		}else{
+			$('button#actionNeighborChange').prop('disabled', true);
+		}
+	});
+	/*
+	* Action change naiborhood
+	*/
+	jQuery(document.body).on('click', 'button#actionNeighborChange', function(e){
+		e.preventDefault();
+		$(".woocommerce table.wc-shipping-zones.widefat").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
+		var val = [];
+        $('input[name="selecteasy[]"]:checkbox:checked').each(function(i){
+          val[i] = $(this).val();
+		});
+		var changedVal = $('input#change_area').val();
+		var fromData = {
+			action: 'changeneighborAreaMultiple',
+			dbids: val, 
+			areaname: changedVal 
+		};
+		$.ajax({
+            type : 'post',
+            dataType: 'json',
+            data : fromData,
+            url : easyAjax,
+            success:function(data){
+            	//console.log(data);
+                if(data.message == 'success'){
+                	$(".woocommerce table.wc-shipping-zones.widefat").unblock();
+					window.location.reload();
+                }
+            }
+        });
+
+	});
 
 }); // End document ready

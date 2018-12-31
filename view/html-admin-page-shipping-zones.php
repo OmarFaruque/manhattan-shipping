@@ -5,23 +5,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <h2 class="wc-shipping-zones-heading">
-	<?php _e( 'Shipping zones', 'woocommerce' ); ?>
+	<?php _e( 'Shipping zones', 'easy' ); ?>
 	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&zone_id=new' ); ?>" class="page-title-action"><?php esc_html_e( 'Add shipping zone', 'woocommerce' ); ?></a>
 
 	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&easy-settings=1' ); ?>" class="page-title-action"><?php esc_html_e( 'Settings', 'woocommerce' ); ?></a>
 </h2>
 <p><?php echo __( 'A shipping zone is a geographic region where a certain set of shipping methods are offered.', 'woocommerce' ) . ' ' . __( 'WooCommerce will match a customer to a single zone using their shipping address and present the shipping methods within that zone to them.', 'woocommerce' ); ?></p>
-<p><fieldset><label><input type="checkbox" <?php echo ($status == 1)?'checked':''; ?> value="1" name="active_easy" id="active_easy"/>&nbsp;<?php _e('Active Easy Shipping', 'woocommerce'); ?></label></fieldset></p>
-<table class="wc-shipping-zones widefat omar">
+
+<div class="easy left">
+	<p><fieldset><label><input type="checkbox" <?php echo ($status == 1)?'checked':''; ?> value="1" name="active_easy" id="active_easy"/>&nbsp;<?php _e('Active Easy Shipping', 'woocommerce'); ?></label></fieldset></p>
+</div>
+<div class="easy right">
+	<div class="form-group">
+		<input type="text" name="search_easy" id="search_easy">
+		<button class="button button-primary" id="easy_earch_button" type="submit"><?php _e('Search', 'easy'); ?></button>
+	</div>
+</div>
+
+<table class="wc-shipping-zones widefat">
 	<thead>
 		<tr>
-			<th class="wc-shipping-zone-sort"><?php echo wc_help_tip( __( 'This is the Delivery area where a user got there product.', 'woocommerce' ) ); ?></th>
-			<th class="wc-shipping-zone-name"><?php esc_html_e( 'Area name', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'woocommerce' ); ?></th>
+			<th class="wc-shipping-zone-select">
+				<input style="margin-left:0;" type="checkbox" name="selectalleasy" id="selectalleasy" />
+			</th>
+			<th class="wc-shipping-zone-name"><?php esc_html_e( 'Area name', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'easy' ); ?></th>
 		</tr>
 	</thead>
 	<tbody class="wc-shipping-zone-rows">
@@ -29,7 +41,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$output ='';
 		foreach($allships as $s_ship){
 			$output .= '<tr data-id="'.$s_ship->id.'">';
-			$output .= '<td width="1%" class="wc-shipping-zone-sort"></td>';
+			$output .= '<td width="1%" class="wc-shipping-zone-select">
+					<input value="'.$s_ship->id.'" type="checkbox" name="selecteasy[]" />
+				</td>';
 			$output .= '<td class="wc-shipping-zone-name">
 					<a href="admin.php?page=wc-settings&amp;tab=easy_shipping&amp;zone_id='.$s_ship->id.'">'.$s_ship->delivery_area.'</a>
 					<div class="row-actions">
@@ -48,7 +62,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</tbody>
 	<tfoot>
 		<tr>
-			<th class="wc-shipping-zone-sort"><?php echo wc_help_tip( __( 'This is the Delivery area where a user got there product.', 'woocommerce' ) ); ?></th>
+			<th class="wc-shipping-zone-select">
+				<input style="margin-left:0;" type="checkbox" name="selectalleasy" id="selectalleasy" />
+			</th>
 			<th class="wc-shipping-zone-name"><?php esc_html_e( 'Area name', 'woocommerce' ); ?></th>
 			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'woocommerce' ); ?></th>
 			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'woocommerce' ); ?></th>

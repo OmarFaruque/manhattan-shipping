@@ -80,3 +80,42 @@ input:checked + .slider:before {
     padding: 5px 0;
     border-bottom: 1px solid #ddd;
 }
+.easy {
+  max-width: 50%;
+  float: left;
+  width: 50%;
+  vertical-align: middle;
+  display: table;
+}
+.easy.right > div {
+  display: table-cell;
+  vertical-align: middle;
+  height: 100%;
+  padding: 7px 0;
+  text-align: right;
+}
+input#search_easy {
+  padding: 4px;
+  min-width: 233px;
+}
+div#edit_multiple_area {
+  background-color: #fff;
+  float: left;
+  padding: 15px;
+  box-shadow: 2px 3px 1em #aaa;
+  margin-bottom: 12px;
+}
+.editarea_wrap {
+  width: 100%;
+  display: block;
+  overflow: hidden;
+  margin-top: 20px;
+}
+div#edit_multiple_area > input[type="text"] {
+  width: 300px;
+  margin-right: 20px;
+}
+div#edit_multiple_area label {
+  display: block;
+  margin-bottom: 5px;
+}
