@@ -365,4 +365,21 @@ jQuery(document).ready(function($){
 		});
 	}
 
+	/*
+	* Multiple zipcode fields
+	*/
+	jQuery(document.body).on('keyup', 'input#delivery_area', function(){
+		var valu = jQuery(this).val();
+		var splitV = valu.split('|');
+		var terget = $(this).closest('tbody').find('td.delivery_zipcodetd');
+		console.log(splitV);
+		var html = '';
+		$.each(splitV, function(k,v){
+			html +='<input type="text" name="sp_zipcode[]" />';
+		});
+		if(splitV.length > 1){
+			terget.html(html);
+		}
+	});
+
 }); // End document ready
