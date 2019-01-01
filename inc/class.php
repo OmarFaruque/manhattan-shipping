@@ -429,7 +429,7 @@ if (!class_exists('manhattan_shippingClass')) {
         function saveEasyData(){
             unset($_REQUEST['action']);
             $data = $_REQUEST;
-            $ziparray  = ($_REQUEST['zipcode'] != '')?explode(',', $_REQUEST['zipcode']):array();
+            $ziparray  = ($_REQUEST['zipcode'] != '')?explode('|', $_REQUEST['zipcode']):array();
             $deliverAreas = ($_REQUEST['delivery_area'] != '')?explode('|', $_REQUEST['delivery_area']):array();
             //$data['state'] = json_encode($data['state']);
             $zipesyid = array();
@@ -475,19 +475,20 @@ if (!class_exists('manhattan_shippingClass')) {
             
             if(count($ziparray) > 0):
                 for($j=0; count($zipesyid) > $j; $j++ ):
-                foreach($ziparray as $szip):
+                    $szipArray = explode(',', $ziparray[$j]);
+                        foreach($szipArray as $sZ):
                             $inserzip = $this->wpdb->insert(
                                 $this->easy_ziptable,
                                 array(
                                     's_id' => $zipesyid[$j],
-                                    'zipcode' => $szip
+                                    'zipcode' => $sZ
                                 ),
                                 array(
                                     '%d',
                                     '%s'
                                 )
                             );
-                endforeach; 
+                        endforeach;
                 endfor;
             endif;
 

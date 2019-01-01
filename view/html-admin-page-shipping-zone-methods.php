@@ -84,11 +84,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<th scope="row" class="titledesc">
 					<label for="delivery_zipcode">
 						<?php esc_html_e( 'Zipcode', 'easy' ); ?>
-						<?php echo wc_help_tip( __( 'Set zipcode. If have multiple zipcode seperate each zipcode using (,) comma.', 'easy' ) ); // @codingStandardsIgnoreLine ?>
+						<?php echo wc_help_tip( __( 'If have multiple zipcode seperate each zipcode using (,) comma. If you have multiple Neighborhood seperate each zip bundle with (|)', 'easy' ) ); // @codingStandardsIgnoreLine ?>
 					</label>
 				</th>
 				<td class="forminp">
-					<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?implode(', ', $zipcodes):''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000 | 000000, 000000"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?implode(', ', $zipcodes):''; ?>" class="wc-shipping-zone-region-select" />
 				</td>
 		</tr>
 		
