@@ -304,7 +304,7 @@ if (!class_exists('manhattan_shippingClass')) {
             global $hide_save_button;
             $hide_save_button = true;
             $status = get_option( 'easy_shipping', 0 );
-            $allships = $this->wpdb->get_results('SELECT * FROM '.$this->easy_shipping.'', OBJECT);
+            $allships = $this->wpdb->get_results('SELECT * FROM '.$this->easy_shipping.' ORDER BY `delivery_area` ASC', OBJECT);
             require_once($this->plugin_dir . '/view/html-admin-page-shipping-zones.php');    
         }   
 
@@ -348,9 +348,11 @@ if (!class_exists('manhattan_shippingClass')) {
         * Appointment Back office Script
         */
         function manhattan_shipping_backend_script(){
+            wp_enqueue_style( 'jqueryDataTable', $this->plugin_url . 'asset/css/admin/jquery.dataTables.min.css', array(), true, 'all' );
             wp_enqueue_style( 'easycss', $this->plugin_url . 'asset/css/admin/easycss.css', array(), true, 'all' );
             
-            wp_enqueue_script( 'manhattan_shippingjs', $this->plugin_url . 'asset/js/admin/easy.js', array('jquery'), '9.0.1', true );
+            wp_enqueue_script( 'jQueryDataTableJS', $this->plugin_url . 'asset/js/admin/jquery.dataTables.min.js', array('jquery'), '9.0.1', true );
+            wp_enqueue_script( 'manhattan_shippingjs', $this->plugin_url . 'asset/js/admin/easy.js', array('jquery'), '9.0.2', true );
             wp_localize_script( 'manhattan_shippingjs', 'easyAjax', admin_url( 'admin-ajax.php' ));
         }
         /*
@@ -428,16 +430,19 @@ if (!class_exists('manhattan_shippingClass')) {
             unset($_REQUEST['action']);
             $data = $_REQUEST;
             $ziparray  = ($_REQUEST['zipcode'] != '')?explode(',', $_REQUEST['zipcode']):array();
+            $deliverAreas = ($_REQUEST['delivery_area'] != '')?explode('|', $_REQUEST['delivery_area']):array();
             //$data['state'] = json_encode($data['state']);
+            $zipesyid = array();
 
             if(!isset($data['id'])){
+                foreach($deliverAreas as $sD):
                 $insert = $this->wpdb->insert(
                     $this->easy_shipping,
                     array(
                          'country_name' => $data['country_name'],
                          'state' => $data['state'], 
                          'city' => $data['city'], 
-                         'delivery_area' => $data['delivery_area'], 
+                         'delivery_area' => $sD, 
                          'min_amount' => $data['min_amount'], 
                          'max_amount' => $data['max_amount'], 
                          'charge' => $data['charge'], 
@@ -445,8 +450,9 @@ if (!class_exists('manhattan_shippingClass')) {
                     array('%s', '%s', '%s', '%s', '%s', '%s', '%s')                
                 );
                 if($insert){
-                    $zipesyid = $this->wpdb->insert_id;
+                    array_push($zipesyid,  $this->wpdb->insert_id);
                 }
+            endforeach;
             }else{
                 $update = $this->wpdb->update(
                     $this->easy_shipping,
@@ -464,15 +470,16 @@ if (!class_exists('manhattan_shippingClass')) {
                     array('%d')
                 );
                 $deleteOldzip = $this->wpdb->delete($this->easy_ziptable, array('s_id' => $data['id']), array('%d'));
-                $zipesyid = $data['id'];
+                array_push($zipesyid,  $data['id']);
             }
             
             if(count($ziparray) > 0):
+                for($j=0; count($zipesyid) > $j; $j++ ):
                 foreach($ziparray as $szip):
                             $inserzip = $this->wpdb->insert(
                                 $this->easy_ziptable,
                                 array(
-                                    's_id' => $zipesyid,
+                                    's_id' => $zipesyid[$j],
                                     'zipcode' => $szip
                                 ),
                                 array(
@@ -481,6 +488,7 @@ if (!class_exists('manhattan_shippingClass')) {
                                 )
                             );
                 endforeach; 
+                endfor;
             endif;
 
             $msg = (isset($insert) || isset($update))?'success':'fail';            

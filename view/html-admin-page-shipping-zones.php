@@ -16,13 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<p><fieldset><label><input type="checkbox" <?php echo ($status == 1)?'checked':''; ?> value="1" name="active_easy" id="active_easy"/>&nbsp;<?php _e('Active Easy Shipping', 'woocommerce'); ?></label></fieldset></p>
 </div>
 <div class="easy right">
-	<div class="form-group">
+	<!--<div class="form-group">
 		<input type="text" name="search_easy" id="search_easy">
 		<button class="button button-primary" id="easy_earch_button" type="submit"><?php _e('Search', 'easy'); ?></button>
-	</div>
+	</div>-->
 </div>
 
-<table class="wc-shipping-zones widefat">
+<table id="dataTable" class="wc-shipping-zones widefat">
 	<thead>
 		<tr>
 			<th class="wc-shipping-zone-select">

@@ -71,11 +71,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<th scope="row" class="titledesc">
 					<label for="delivery_area">
 						<?php esc_html_e( 'Delivery Area', 'easy' ); ?>
-						<?php echo wc_help_tip( __( 'Specific Delivery Area in Selected city.', 'easy' ) ); // @codingStandardsIgnoreLine ?>
+						<?php echo wc_help_tip( __( 'Specific Delivery Area in Selected city. Use | for seperate multiple delivery area', 'easy' ) ); // @codingStandardsIgnoreLine ?>
 					</label>
 				</th>
 				<td class="forminp">
-					<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Delivery Area"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->delivery_area:''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Area 1 | Area 2 | Area 3"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->delivery_area:''; ?>" class="wc-shipping-zone-region-select" />
 				</td>
 		</tr>
 

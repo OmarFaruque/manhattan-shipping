@@ -351,7 +351,18 @@ jQuery(document).ready(function($){
                 }
             }
         });
-
 	});
+
+	/*
+	* Admin Shipping list
+	*/
+	if($('#dataTable').length > 0){
+		$('#dataTable').DataTable({
+			"columnDefs": [
+				{ "orderable": false, "targets": 0 }
+			],
+			"order": [[ 1, "asc" ]]
+		});
+	}
 
 }); // End document ready
