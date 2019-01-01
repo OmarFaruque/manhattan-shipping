@@ -124,7 +124,14 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action('wp_ajax_nopriv_updateEasySettings', array($this, 'updateEasySettings'));
             add_action( 'wp_ajax_updateEasySettings', array($this, 'updateEasySettings') );
 
+            //=================== C H A N G E  M U L T I P L E  A R E A   N A M E ================== //
+            add_action('wp_ajax_nopriv_changeneighborAreaMultiple', array($this, 'changeneighborAreaMultiple'));
+            add_action( 'wp_ajax_changeneighborAreaMultiple', array($this, 'changeneighborAreaMultiple') );
             
+
+            //=================== S E A R C H  A D M I N  L I S T  D A T A ================== //
+            add_action('wp_ajax_nopriv_adminSearchDB', array($this, 'adminSearchDB'));
+            add_action( 'wp_ajax_adminSearchDB', array($this, 'adminSearchDB') );
             
 
             /*
@@ -809,7 +816,8 @@ if (!class_exists('manhattan_shippingClass')) {
     function easyAdminheadHook(){
         echo '<script>
             var easy = {
-                easy_page:"'.admin_url( 'admin.php?page=wc-settings&tab=easy_shipping', 'easy' ).'"
+                easy_page:"'.admin_url( 'admin.php?page=wc-settings&tab=easy_shipping', 'easy' ).'",
+                wc_currency_samble:"'.get_woocommerce_currency_symbol().'"
                 } 
         </script>';
     }
@@ -944,10 +952,13 @@ if (!class_exists('manhattan_shippingClass')) {
 
         $qry = 'SELECT `country_name`, `state`, `city`, `delivery_area` FROM '.$this->easy_shipping.' es';
         if(count($vals) > 4):
+            $cityname = $vals[count($vals) - 3];
             $qry .= ' LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE ez.`zipcode`="'.$endvalue.'"';
         else:
+            $cityname = $vals[count($vals) - 2];
             $qry .= ' WHERE es.`delivery_area`="'.$endvalue.'"';
         endif;
+        $qry .= ' AND es.`city`="'.$cityname.'"';
 
         $rowQry = $this->wpdb->get_row($qry, OBJECT);
         
@@ -980,6 +991,49 @@ if (!class_exists('manhattan_shippingClass')) {
         }
     } // End custom_shop_order_column()
 
+
+    /*
+    * Change multiple area in single action
+    */
+    function changeneighborAreaMultiple(){
+        $post = $_REQUEST;
+        foreach($post['dbids'] as $sid):
+        $update = $this->wpdb->update(
+            $this->easy_shipping, 
+            array('delivery_area' => $post['areaname']),
+            array('id' => $sid),
+            array('%s'),
+            array('%d')
+        );
+        endforeach;
+        echo json_encode(
+            array(
+                'message' => 'success'
+            )
+        );
+        die();
+    } //End
+
+    /*
+    * Search Admin list
+    */
+    function adminSearchDB(){
+
+        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['search'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['search'].'%" OR es.`city` LIKE "%'.$_REQUEST['search'].'%" GROUP BY es.`id`';
+        $eQuery = $this->wpdb->get_results($qerDeliver, OBJECT);
+        foreach($eQuery as $k => $sQ){
+            $eQuery[$k]->state          =  WC()->countries->get_states( $sQ->country_name )[$sQ->state];
+            $eQuery[$k]->country_name   =  WC()->countries->countries[$sQ->country_name];
+        }
+
+        echo json_encode(
+            array(
+                'message' => 'success',
+                'results' => $eQuery
+            )
+        );
+        die();
+    }
 
     } // End Class
 } // End Class check if exist / not 
