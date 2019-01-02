@@ -42,12 +42,21 @@ jQuery(document).ready(function($){
 	jQuery(document.body).on('click', 'button#easy_submit', function(e){
 		e.preventDefault();
 		$("table.wc-shipping-zone-settings").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
+		var zipcodes = jQuery('input[name="zipcode"]').val();
+		var zipArrays = [];
+		if(typeof zipcodes == 'undefined'){
+			$.each(jQuery('input[name="sp_zipcode[]"]'), function(f, g){
+				zipArrays.push($(g).val());
+			});
+		zipcodes = zipArrays.join('|');
+		}
+		
 		var formData = {
 			country_name: 	jQuery('select[name="country_name"]').val(),
 			state: 			jQuery('select[name="zone_locations"]').val(),
 			city: 			jQuery('input[name="city"]').val(),
 			delivery_area: 	jQuery('input[name="delivery_area"]').val(),
-			zipcode: 		jQuery('input[name="zipcode"]').val(),
+			zipcode: 		zipcodes,
 			min_amount: 	jQuery('input[name="min_amount"]').val(),
 			max_amount: 	jQuery('input[name="max_amount"]').val(),
 			charge: 		jQuery('input[name="delivery_charge"]').val(),
@@ -368,18 +377,33 @@ jQuery(document).ready(function($){
 	/*
 	* Multiple zipcode fields
 	*/
-	jQuery(document.body).on('keyup', 'input#delivery_area', function(){
-		var valu = jQuery(this).val();
-		var splitV = valu.split('|');
-		var terget = $(this).closest('tbody').find('td.delivery_zipcodetd');
-		console.log(splitV);
-		var html = '';
-		$.each(splitV, function(k,v){
-			html +='<input type="text" name="sp_zipcode[]" />';
-		});
-		if(splitV.length > 1){
-			terget.html(html);
-		}
+	jQuery(document.body).on('click', 'button.addzipcode', function(){
+		var index = jQuery('input[name="delivery_area"]').index;
+		console.log('index ' + index);
+		index = index - 1;
+		var output = '<li><input class="mzipcode" type="text" value="" name="zipcodes['+index+']"/><span class="delete dashicons dashicons-dismiss"></span></li>';
+		jQuery(this).closest('div.addbuttons').prev('ul.ziplist').append(output);
+	});
+
+	/*
+	* Delete single zip code box
+	*/
+	jQuery(document.body).on('click', 'table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete', function(){
+		jQuery(this).closest('li').remove();
+	});
+
+	/*
+	* Add Extra Delivery Area
+	*/
+	jQuery(document.body).on('click', 'button.addmorearea', function(){
+		var outputa = '<div class="singleDeliverArea">'
+		+'<input type="text" data-attribute="delivery_area" name="delivery_area" placeholder="Neighborhood..." value="" class="wc-shipping-zone-region-select">'
+		+'<ul class="ziplist"></ul>'
+		+'<div class="addbuttons mt-1">'
+			+'<button type="button" class="button button-primary addzipcode">Add zip code</button>'
+		+'</div>'
+		+'</div>';
+		jQuery(outputa).insertAfter(jQuery(this).closest('div.singleDeliverArea'));
 	});
 
 }); // End document ready

@@ -119,7 +119,22 @@ div#edit_multiple_area label {
   display: block;
   margin-bottom: 5px;
 }
+.eszipcodes label {
+  display: block;
+  margin-bottom: 3px;
+}
 
+.mb-1{margin-bottom:1em;}
+.mb-2{margin-bottom:2em;}
+.mb-3{margin-bottom:3em;}
+.mb-4{margin-bottom:4em;}
+.mb-5{margin-bottom:5em;}
+
+.mt-1{margin-top:1em;}
+.mt-2{margin-top:2em;}
+.mt-3{margin-top:3em;}
+.mt-4{margin-top:4em;}
+.mt-5{margin-top:5em;}
 
 table.dataTable thead .sorting { background: url('../images/sort_both.png') no-repeat center right; }
 table.dataTable thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
@@ -132,4 +147,34 @@ table#dataTable > thead tr > th:first-child {
 }
 table#dataTable > thead tr > th {
   background-position: -5px;
+}
+table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li input {
+  max-width: 50px;
+  width: 100px;
+}
+table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li{
+  display: inline-block;
+  margin-right: 10px;
+  position: relative;
+}
+table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  display: none;
+}
+table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li:hover span.delete{
+  display: block;
+}
+table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete:hover
+{
+  color: red;
+}
+.singleDeliverArea {
+  background-color: rgba(0,0,0,0.1);
+  padding: 15px;
+  margin: 10px 0;
 }

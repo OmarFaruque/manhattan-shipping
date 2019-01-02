@@ -75,7 +75,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</label>
 				</th>
 				<td class="forminp">
-					<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Area 1 | Area 2 | Area 3"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->delivery_area:''; ?>" class="wc-shipping-zone-region-select" />
+					<div class="singleDeliverArea">
+					<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Area 1"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->delivery_area:''; ?>" class="wc-shipping-zone-region-select" />
+					<ul class="ziplist"></ul>
+					<div class="addbuttons mt-1">
+						<button type="button" class="button button-primary addzipcode"><?php _e('Add zip code', 'easy'); ?></button>
+						<?php if($_REQUEST['zone_id']): ?>
+						<button type="button" class="button button-primary addmorearea"><?php _e('Add Delivery Area', 'easy'); ?></button>
+					</div>
+					</div>
+					<?php endif; ?>
 				</td>
 		</tr>
 

@@ -379,6 +379,7 @@ if (!class_exists('manhattan_shippingClass')) {
             
             $qry = 'SELECT `state`, `country_name` FROM '.$this->easy_shipping.' WHERE state!=""';
             if($country != '') $qry .= ' AND country_name="'.$country.'"';
+            $qry .=' ORDER BY `delivery_area` ASC';
             $allData = $this->wpdb->get_results($qry, OBJECT);
 
             $dStates = array();
@@ -526,7 +527,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
 
         function getAllCitywithStateNCountry(){
-             $query = 'SELECT * FROM '.$this->easy_shipping.' WHERE city!="" GROUP BY city';
+             $query = 'SELECT * FROM '.$this->easy_shipping.' WHERE city!="" GROUP BY city ORDER BY `city` ASC';
              $qrCitys = $this->wpdb->get_results($query, OBJECT);
              return $qrCitys;
         }
@@ -545,6 +546,7 @@ if (!class_exists('manhattan_shippingClass')) {
                     $query .= ' AND country_name="'.$val['val'].'"';        
                 break;
             endswitch;
+            $query .= ' ORDER BY `city` ASC';
 
             $qrCitys = $this->wpdb->get_results($query, OBJECT);
 
@@ -571,7 +573,7 @@ if (!class_exists('manhattan_shippingClass')) {
                 default:
                     $query .= ' AND country_name="'.$val['cnt'].'" AND state LIKE "%'.$val['value'].'%"';        
             endswitch;
-
+            $query .= ' ORDER BY `delivery_area` ASC';
             $qrAreas = $this->wpdb->get_results($query, OBJECT);
 
             foreach($qrAreas as $sarea){
@@ -589,6 +591,7 @@ if (!class_exists('manhattan_shippingClass')) {
                 $output = array();
                 $qry = 'SELECT `city` FROM '.$this->easy_shipping.' WHERE country_name="'.$cnt.'"';
                 $qry .= ($stateID != 'undefined')?' AND state like "%'.$stateID.'%"':'';
+                $qry .= ' ORDER BY `city` ASC';
                 $qrCitys = $this->wpdb->get_results($qry, OBJECT);
                 foreach($qrCitys as $sCity){
                     if(!in_array($sCity->city, $output)) array_push($output, $sCity->city);
@@ -613,7 +616,7 @@ if (!class_exists('manhattan_shippingClass')) {
             $city_name = $_REQUEST['city_name'];
 
             $deliverArray = array();
-            $qrCitys = $this->wpdb->get_results('SELECT `delivery_area` FROM '.$this->easy_shipping.' WHERE country_name="'.$cnt.'" AND city="'.$city_name.'"', OBJECT);
+            $qrCitys = $this->wpdb->get_results('SELECT `delivery_area` FROM '.$this->easy_shipping.' WHERE country_name="'.$cnt.'" AND city="'.$city_name.'" ORDER BY `delivery_area` ASC', OBJECT);
 
             foreach($qrCitys as $sCity){
                 if(!in_array($sCity->delivery_area, $deliverArray)) array_push($deliverArray, $sCity->delivery_area);
@@ -733,7 +736,7 @@ if (!class_exists('manhattan_shippingClass')) {
          * Set Easy Shipping Area as Location Taxonomy for woocommerce product
          */
          function insertAreatoAsCityTax(){
-            $allCitys = $this->wpdb->get_results('SELECT `country_name`, `city` FROM '.$this->easy_shipping.' WHERE city!="" GROUP BY `city`', OBJECT);
+            $allCitys = $this->wpdb->get_results('SELECT `country_name`, `city` FROM '.$this->easy_shipping.' WHERE city!="" GROUP BY `city` ORDER BY `city` ASC', OBJECT);
 
             foreach($allCitys as $sCity){
                 wp_insert_term(
@@ -823,10 +826,12 @@ if (!class_exists('manhattan_shippingClass')) {
     } // End Class
 
     function easyAdminheadHook(){
+        $newentry = (isset($_REQUEST['zone_id']) && $_REQUEST['zone_id'] == 'new')?'new':'edit';
         echo '<script>
             var easy = {
                 easy_page:"'.admin_url( 'admin.php?page=wc-settings&tab=easy_shipping', 'easy' ).'",
-                wc_currency_samble:"'.get_woocommerce_currency_symbol().'"
+                wc_currency_samble:"'.get_woocommerce_currency_symbol().'",
+                entry_type:"'.$newentry.'"
                 } 
         </script>';
     }
@@ -937,7 +942,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
     function typeDeliveryAutoFill(){
         $req = $_REQUEST['term'];
-        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON ez.`s_id`=es.`id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['term'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['term'].'%" OR es.`city` LIKE "%'.$_REQUEST['term'].'%"';
+        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON ez.`s_id`=es.`id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['term'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['term'].'%" OR es.`city` LIKE "%'.$_REQUEST['term'].'%" ORDER BY es.`delivery_area` ASC';
         $eQuery = $this->wpdb->get_results($qerDeliver, OBJECT);
 
         $output = array();
@@ -967,7 +972,7 @@ if (!class_exists('manhattan_shippingClass')) {
             $cityname = $vals[count($vals) - 2];
             $qry .= ' WHERE es.`delivery_area`="'.$endvalue.'"';
         endif;
-        $qry .= ' AND es.`city`="'.$cityname.'"';
+        $qry .= ' AND es.`city`="'.$cityname.'" ORDER BY es.`delivery_area` ASC';
 
         $rowQry = $this->wpdb->get_row($qry, OBJECT);
         
@@ -1028,7 +1033,7 @@ if (!class_exists('manhattan_shippingClass')) {
     */
     function adminSearchDB(){
 
-        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['search'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['search'].'%" OR es.`city` LIKE "%'.$_REQUEST['search'].'%" GROUP BY es.`id`';
+        $qerDeliver = 'SELECT * FROM '.$this->easy_shipping.' es LEFT JOIN '.$this->easy_ziptable.' ez ON es.`id`=ez.`s_id` WHERE es.`delivery_area` LIKE "%'.$_REQUEST['search'].'%" OR ez.`zipcode` LIKE "%'.$_REQUEST['search'].'%" OR es.`city` LIKE "%'.$_REQUEST['search'].'%" GROUP BY es.`id` ORDER BY es.`delivery_area` ASC';
         $eQuery = $this->wpdb->get_results($qerDeliver, OBJECT);
         foreach($eQuery as $k => $sQ){
             $eQuery[$k]->state          =  WC()->countries->get_states( $sQ->country_name )[$sQ->state];
