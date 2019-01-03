@@ -171,10 +171,25 @@ table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li:hover span.dele
 }
 table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete:hover
 {
-  color: red;
+  color: #e22d2d;
 }
 .singleDeliverArea {
   background-color: rgba(0,0,0,0.1);
   padding: 15px;
   margin: 10px 0;
+  position: relative;
+}
+.singleDeliverArea span.delete.area {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: none;
+  cursor: pointer;
+}
+
+.singleDeliverArea:hover span.delete.area{
+  display: block;
+}
+.singleDeliverArea span.delete.area:hover{
+  color: #e22d2d;
 }

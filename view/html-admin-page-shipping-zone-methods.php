@@ -89,7 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</tr>
 
 		<!-- Zipcode -->
-		<tr valign="top" class="">
+		<<!--tr valign="top" class="">
 				<th scope="row" class="titledesc">
 					<label for="delivery_zipcode">
 						<?php esc_html_e( 'Zipcode', 'easy' ); ?>
@@ -99,7 +99,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td class="forminp delivery_zipcodetd">
 					<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000 | 000000, 000000"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?implode(', ', $zipcodes):''; ?>" class="wc-shipping-zone-region-select" />
 				</td>
-		</tr>
+		</tr>-->
 		
 		<!-- Min -->
 		<tr valign="top" class="">

@@ -50,7 +50,15 @@ jQuery(document).ready(function($){
 			});
 		zipcodes = zipArrays.join('|');
 		}
-		
+		var mzipcodes = [];
+		$.each(jQuery('.singleDeliverArea'), function(t, m){
+			var index = jQuery('.singleDeliverArea').index(jQuery(this));
+			mzipcodes[index] = new Array();
+			$.each(jQuery('input[name="zipcodes['+index+']"]'), function(s,n){
+				mzipcodes[index].push(jQuery(n).val());
+			})
+		});
+		console.log(mzipcodes);
 		var formData = {
 			country_name: 	jQuery('select[name="country_name"]').val(),
 			state: 			jQuery('select[name="zone_locations"]').val(),
@@ -63,7 +71,7 @@ jQuery(document).ready(function($){
 			action: 		'saveEasyData'
 		};
 
-		$.ajax({
+		/*$.ajax({
             type : 'post',
             dataType: 'json',
             data : formData,
@@ -74,7 +82,7 @@ jQuery(document).ready(function($){
                 	window.location.replace(easy.easy_page);
                 }
             }
-        });
+        });*/
 	});
 
 
@@ -378,9 +386,7 @@ jQuery(document).ready(function($){
 	* Multiple zipcode fields
 	*/
 	jQuery(document.body).on('click', 'button.addzipcode', function(){
-		var index = jQuery('input[name="delivery_area"]').index;
-		console.log('index ' + index);
-		index = index - 1;
+		var index = jQuery('.singleDeliverArea').index(jQuery(this).closest('.singleDeliverArea'));
 		var output = '<li><input class="mzipcode" type="text" value="" name="zipcodes['+index+']"/><span class="delete dashicons dashicons-dismiss"></span></li>';
 		jQuery(this).closest('div.addbuttons').prev('ul.ziplist').append(output);
 	});
@@ -388,15 +394,16 @@ jQuery(document).ready(function($){
 	/*
 	* Delete single zip code box
 	*/
-	jQuery(document.body).on('click', 'table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete', function(){
-		jQuery(this).closest('li').remove();
+	jQuery(document.body).on('click', 'table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete, table.wc-shipping-zone-settings .singleDeliverArea span.delete.area', function(){
+		if(!jQuery(this).hasClass('area')) jQuery(this).closest('li').remove();
+		if(jQuery(this).hasClass('area')) jQuery(this).closest('.singleDeliverArea').remove();
 	});
 
 	/*
 	* Add Extra Delivery Area
 	*/
 	jQuery(document.body).on('click', 'button.addmorearea', function(){
-		var outputa = '<div class="singleDeliverArea">'
+		var outputa = '<div class="singleDeliverArea"><span class="delete area dashicons dashicons-dismiss"></span>'
 		+'<input type="text" data-attribute="delivery_area" name="delivery_area" placeholder="Neighborhood..." value="" class="wc-shipping-zone-region-select">'
 		+'<ul class="ziplist"></ul>'
 		+'<div class="addbuttons mt-1">'
