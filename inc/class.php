@@ -431,12 +431,14 @@ if (!class_exists('manhattan_shippingClass')) {
             unset($_REQUEST['action']);
             $data = $_REQUEST;
             $ziparray  = ($_REQUEST['zipcode'] != '')?explode('|', $_REQUEST['zipcode']):array();
-            $deliverAreas = ($_REQUEST['delivery_area'] != '')?explode('|', $_REQUEST['delivery_area']):array();
+            //$deliverAreas = ($_REQUEST['delivery_area'] != '')?explode('|', $_REQUEST['delivery_area']):array();
             //$data['state'] = json_encode($data['state']);
             $zipesyid = array();
+           $data['delivery_area'] = json_decode(stripslashes($data['delivery_area']));
 
             if(!isset($data['id'])){
-                foreach($deliverAreas as $sD):
+                
+                /*foreach($deliverAreas as $sD):
                 $insert = $this->wpdb->insert(
                     $this->easy_shipping,
                     array(
@@ -453,7 +455,7 @@ if (!class_exists('manhattan_shippingClass')) {
                 if($insert){
                     array_push($zipesyid,  $this->wpdb->insert_id);
                 }
-            endforeach;
+            endforeach;*/
             }else{
                 $update = $this->wpdb->update(
                     $this->easy_shipping,

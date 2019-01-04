@@ -71,73 +71,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<th scope="row" class="titledesc">
 					<label for="delivery_area">
 						<?php esc_html_e( 'Delivery Area', 'easy' ); ?>
-						<?php echo wc_help_tip( __( 'Specific Delivery Area in Selected city. Use | for seperate multiple delivery area', 'easy' ) ); // @codingStandardsIgnoreLine ?>
+						<?php echo wc_help_tip( __( 'Use (,) comma for seperate each zipcode.', 'easy' ) ); // @codingStandardsIgnoreLine ?>
 					</label>
 				</th>
 				<td class="forminp">
 					<div class="singleDeliverArea">
-					<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Area 1"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->delivery_area:''; ?>" class="wc-shipping-zone-region-select" />
-					<ul class="ziplist"></ul>
+					<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Neighborhood..."  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->delivery_area:''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?implode(', ', $zipcodes):''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="number" data-attribute="min_amount" step="0.01" id="min_amount" name="min_amount" placeholder="Min Amount "  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->min_amount:''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="number" data-attribute="max_amount" step="0.01" id="max_amount" name="max_amount" placeholder="Max Amount "  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->max_amount:''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->charge:''; ?>" class="wc-shipping-zone-region-select" />
+					</div>
 					<div class="addbuttons mt-1">
-						<button type="button" class="button button-primary addzipcode"><?php _e('Add zip code', 'easy'); ?></button>
 						<?php if($_REQUEST['zone_id']): ?>
 						<button type="button" class="button button-primary addmorearea"><?php _e('Add Delivery Area', 'easy'); ?></button>
+						<?php endif; ?>
 					</div>
-					</div>
-					<?php endif; ?>
-				</td>
-		</tr>
-
-		<!-- Zipcode -->
-		<<!--tr valign="top" class="">
-				<th scope="row" class="titledesc">
-					<label for="delivery_zipcode">
-						<?php esc_html_e( 'Zipcode', 'easy' ); ?>
-						<?php echo wc_help_tip( __( 'If have multiple zipcode seperate each zipcode using (,) comma. If you have multiple Neighborhood seperate each zip bundle with (|)', 'easy' ) ); // @codingStandardsIgnoreLine ?>
-					</label>
-				</th>
-				<td class="forminp delivery_zipcodetd">
-					<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000 | 000000, 000000"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?implode(', ', $zipcodes):''; ?>" class="wc-shipping-zone-region-select" />
-				</td>
-		</tr>-->
-		
-		<!-- Min -->
-		<tr valign="top" class="">
-				<th scope="row" class="titledesc">
-					<label for="min_amount">
-						<?php esc_html_e( 'Min Amount', 'woocommerce' ); ?>
-						<?php echo wc_help_tip( __( 'Minimum ammount of money.', 'woocommerce' ) ); // @codingStandardsIgnoreLine ?>
-					</label>
-				</th>
-				<td class="forminp">
-					<input type="number" data-attribute="min_amount" step="0.01" id="min_amount" name="min_amount" placeholder="Min Amount of money"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->min_amount:''; ?>" class="wc-shipping-zone-region-select" />
-				</td>
-		</tr>
-
-		<!-- Max -->
-		<tr valign="top" class="">
-				<th scope="row" class="titledesc">
-					<label for="max_amount">
-						<?php esc_html_e( 'Max Amount', 'woocommerce' ); ?>
-						<?php echo wc_help_tip( __( 'Maximum ammount of money.', 'woocommerce' ) ); // @codingStandardsIgnoreLine ?>
-					</label>
-				</th>
-				<td class="forminp">
-					<input type="number" data-attribute="max_amount" step="0.01" id="max_amount" name="max_amount" placeholder="Max Amount of money"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->max_amount:''; ?>" class="wc-shipping-zone-region-select" />
-				</td>
-		</tr>
-
-
-
-		<tr valign="top" class="">
-				<th scope="row" class="titledesc">
-					<label for="delivery_charge">
-						<?php esc_html_e( 'Delivery Charge', 'woocommerce' ); ?>
-						<?php echo wc_help_tip( __( 'These are regions inside this zone. Customers will be matched against these regions.', 'woocommerce' ) ); // @codingStandardsIgnoreLine ?>
-					</label>
-				</th>
-				<td class="forminp">
-					<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->charge:''; ?>" class="wc-shipping-zone-region-select" />
 				</td>
 		</tr>
 		<?php if(isset($_REQUEST['zone_id']) && $_REQUEST['zone_id'] != 'new'): ?>

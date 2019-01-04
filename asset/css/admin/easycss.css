@@ -193,3 +193,17 @@ table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete:hov
 .singleDeliverArea span.delete.area:hover{
   color: #e22d2d;
 }
+
+.singleDeliverArea > input#delivery_area {
+  width: 30% !important;
+}
+.singleDeliverArea > input#delivery_zipcode {
+  width: 20% !important;
+}
+.singleDeliverArea > input:not(#delivery_area):not(#delivery_zipcode){
+  width:15% !important;
+}
+.singleDeliverArea > input {
+  display: inline-block;
+  margin-right: 5px !important;
+}

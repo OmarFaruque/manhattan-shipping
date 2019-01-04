@@ -42,47 +42,55 @@ jQuery(document).ready(function($){
 	jQuery(document.body).on('click', 'button#easy_submit', function(e){
 		e.preventDefault();
 		$("table.wc-shipping-zone-settings").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
-		var zipcodes = jQuery('input[name="zipcode"]').val();
-		var zipArrays = [];
-		if(typeof zipcodes == 'undefined'){
-			$.each(jQuery('input[name="sp_zipcode[]"]'), function(f, g){
-				zipArrays.push($(g).val());
+		if(easy.entry_type == 'new'){
+			
+		var deliveryAreas = [];	
+		
+			$.each(jQuery('.singleDeliverArea'), function(t, m){
+				var index = jQuery('.singleDeliverArea').index(jQuery(this));		
+				deliveryAreas[index] = new Array();
+				deliveryAreas[index]['delivery_area'] = jQuery(this).find('input[name="delivery_area"]').val();
+				deliveryAreas[index]['zipcode'] = jQuery(this).find('input[name="zipcode"]').val();
+				deliveryAreas[index]['min_amount'] = jQuery(this).find('input[name="min_amount"]').val();
+				deliveryAreas[index]['max_amount'] = jQuery(this).find('input[name="max_amount"]').val();
+				deliveryAreas[index]['delivery_charge'] = jQuery(this).find('input[name="delivery_charge"]').val();
 			});
-		zipcodes = zipArrays.join('|');
+			var deliverJsonArray = JSON.stringify(deliveryAreas);
+			var formData = {
+				country_name: 	jQuery('select[name="country_name"]').val(),
+				state: 			jQuery('select[name="zone_locations"]').val(),
+				city: 			jQuery('input[name="city"]').val(),
+				delivery_area: 	deliverJsonArray,
+				action: 		'saveEasyData'
+			};
+			console.log(formData);
+		}else{
+			var formData = {
+				country_name: 	jQuery('select[name="country_name"]').val(),
+				state: 			jQuery('select[name="zone_locations"]').val(),
+				city: 			jQuery('input[name="city"]').val(),
+				delivery_area: 	jQuery('input[name="delivery_area"]').val(),
+				zipcode: 		jQuery('input[name="zipcode"]').val(),
+				min_amount: 	jQuery('input[name="min_amount"]').val(),
+				max_amount: 	jQuery('input[name="max_amount"]').val(),
+				charge: 		jQuery('input[name="delivery_charge"]').val(),
+				action: 		'saveEasyData'
+			};
 		}
-		var mzipcodes = [];
-		$.each(jQuery('.singleDeliverArea'), function(t, m){
-			var index = jQuery('.singleDeliverArea').index(jQuery(this));
-			mzipcodes[index] = new Array();
-			$.each(jQuery('input[name="zipcodes['+index+']"]'), function(s,n){
-				mzipcodes[index].push(jQuery(n).val());
-			})
-		});
-		console.log(mzipcodes);
-		var formData = {
-			country_name: 	jQuery('select[name="country_name"]').val(),
-			state: 			jQuery('select[name="zone_locations"]').val(),
-			city: 			jQuery('input[name="city"]').val(),
-			delivery_area: 	jQuery('input[name="delivery_area"]').val(),
-			zipcode: 		zipcodes,
-			min_amount: 	jQuery('input[name="min_amount"]').val(),
-			max_amount: 	jQuery('input[name="max_amount"]').val(),
-			charge: 		jQuery('input[name="delivery_charge"]').val(),
-			action: 		'saveEasyData'
-		};
 
-		/*$.ajax({
+		$.ajax({
             type : 'post',
             dataType: 'json',
             data : formData,
             url : easyAjax,
             success:function(data){
+				console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
                 	window.location.replace(easy.easy_page);
                 }
             }
-        });*/
+        });
 	});
 
 
@@ -404,13 +412,13 @@ jQuery(document).ready(function($){
 	*/
 	jQuery(document.body).on('click', 'button.addmorearea', function(){
 		var outputa = '<div class="singleDeliverArea"><span class="delete area dashicons dashicons-dismiss"></span>'
-		+'<input type="text" data-attribute="delivery_area" name="delivery_area" placeholder="Neighborhood..." value="" class="wc-shipping-zone-region-select">'
-		+'<ul class="ziplist"></ul>'
-		+'<div class="addbuttons mt-1">'
-			+'<button type="button" class="button button-primary addzipcode">Add zip code</button>'
-		+'</div>'
+		+'<input type="text" data-attribute="delivery_area" id="delivery_area" name="delivery_area" placeholder="Neighborhood..." value="" class="wc-shipping-zone-region-select">'
+		+'<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000"  value="" class="wc-shipping-zone-region-select" />'
+		+'<input type="number" data-attribute="min_amount" step="0.01" id="min_amount" name="min_amount" placeholder="Min Amount "  value="" class="wc-shipping-zone-region-select" />'
+		+'<input type="number" data-attribute="max_amount" step="0.01" id="max_amount" name="max_amount" placeholder="Max Amount "  value="" class="wc-shipping-zone-region-select" />'
+		+'<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="" class="wc-shipping-zone-region-select" />'
 		+'</div>';
-		jQuery(outputa).insertAfter(jQuery(this).closest('div.singleDeliverArea'));
+		jQuery(outputa).insertBefore(jQuery(this).closest('div.addbuttons'));
 	});
 
 }); // End document ready
