@@ -183,6 +183,11 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action('wp_ajax_nopriv_popuptAction', array($this, 'popuptAction'));
             add_action( 'wp_ajax_popuptAction', array($this, 'popuptAction') );
 
+            /**** ========================== Popup 1 action ======================= **/
+            add_action('wp_ajax_nopriv_popupaction2', array($this, 'popupaction2'));
+            add_action( 'wp_ajax_popupaction2', array($this, 'popupaction2') );
+
+
             /***====================== New Admin filder to woocommerce product ========================**/
             add_action( 'restrict_manage_posts', array($this, 'admin_posts_filter_restrict_manage_posts_by_taxonomy') );
 
@@ -192,6 +197,9 @@ if (!class_exists('manhattan_shippingClass')) {
 
             /*=== After Complete Order ===*/
             add_filter( 'parse_query', array($this, 'wporder_posts_filter') );
+
+            /* ============= Different shipping open by default ================*/ 
+            add_filter( 'woocommerce_ship_to_different_address_checked', '__return_true' );
             
             endif;
 
@@ -275,6 +283,7 @@ if (!class_exists('manhattan_shippingClass')) {
     }
     endif;
     return $rates;
+    
 }
             
         /*
@@ -308,6 +317,14 @@ if (!class_exists('manhattan_shippingClass')) {
             require_once($this->plugin_dir . '/view/html-admin-page-shipping-zones.php');    
         }   
 
+        protected function getareaZipCodes($s_id){
+            $arrays = array();
+            $ary = $this->wpdb->get_results('SELECT `zipcode` FROM '.$this->easy_ziptable.' WHERE s_id='.$s_id.'', OBJECT);
+            if(count($ary) > 0){
+                foreach($ary as $sz) array_push($arrays, $sz->zipcode);
+            }
+            return $arrays;
+        }
         /*
         * New Zone function
         */
@@ -672,7 +689,7 @@ if (!class_exists('manhattan_shippingClass')) {
             );
         } // End Taxonomy
 
-        function easy_shipping_regular_dynamic_price(){
+        function easy_shipping_regular_dynamic_price($original_price){
             global $post, $woocommerce;
           if(isset($_COOKIE['easy_city'])){
               $cityname = $_COOKIE['easy_city'];
@@ -960,6 +977,29 @@ if (!class_exists('manhattan_shippingClass')) {
 
 
     /*
+    * popupaction2
+    */
+    function popupaction2(){
+        $post = $_POST;
+
+        $qry = 'SELECT `country_name`, `state`, `city`, `delivery_area` FROM '.$this->easy_shipping.' WHERE delivery_area !=""';
+        if($post['country'] != '') $qry.=' AND country_name="'.$post['country'].'"';
+        if($post['state'] != '') $qry.=' AND state="'.$post['state'].'"';
+        if($post['city'] != '') $qry.=' AND city="'.$post['city'].'"';
+        if($post['delivery_area'] != '') $qry.=' AND delivery_area="'.$post['delivery_area'].'"';
+        $query = $this->wpdb->get_row($qry, OBJECT);
+        $msg = ($query)?'success':'fail';
+   
+        echo json_encode(
+            array(
+                'message' => $msg,
+                'qry' => $query
+            )
+        );
+        die();
+    }
+
+    /*
     * Popup 2 Action
     */
     function popuptAction(){
@@ -1041,7 +1081,6 @@ if (!class_exists('manhattan_shippingClass')) {
             $eQuery[$k]->state          =  WC()->countries->get_states( $sQ->country_name )[$sQ->state];
             $eQuery[$k]->country_name   =  WC()->countries->countries[$sQ->country_name];
         }
-
         echo json_encode(
             array(
                 'message' => 'success',
