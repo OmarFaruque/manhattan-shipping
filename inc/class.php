@@ -96,10 +96,13 @@ if (!class_exists('manhattan_shippingClass')) {
             }
             
 
-
+            
             /*
             * Ajax Functions List Backend 
             */
+            // Change Shipping Cost Label
+            add_filter( 'woocommerce_cart_shipping_method_full_label', array($this, 'changeShippingLabe'), 10, 2 );
+
             /*Get selected contry State*/
             add_action('wp_ajax_nopriv_getContryState', array($this, 'getContryState'));
             add_action( 'wp_ajax_getContryState', array($this, 'getContryState') );
@@ -282,10 +285,42 @@ if (!class_exists('manhattan_shippingClass')) {
         }
     }
     endif;
+    
     return $rates;
     
 }
+      
+
+    /*
+    * Show free delivery text if shipping value 0
+    */
+    function changeShippingLabe($label, $method){
+         if(isset($_COOKIE['easy_area'])):
+            $country    = $_COOKIE['easy_country'];
+            $state      = $_COOKIE['easy_state'];
+            $city       = $_COOKIE['easy_city'];
+            $area       = $_COOKIE['easy_area'];
+    
+            $cartSubTotal = WC()->cart->subtotal;
+    
+            $quryRate = $this->wpdb->get_row('SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"', OBJECT);
             
+            if($cartSubTotal < $quryRate->min_amount):
+                    $more = $quryRate->min_amount - $cartSubTotal;
+                    $label = $method->get_label() . ' : ' . __('You should Add more '.get_woocommerce_currency_symbol() . number_format((float)$more, 2, '.', '').' for Accept order', 'easy');
+            elseif($cartSubTotal > $quryRate->min_amount && $cartSubTotal < $quryRate->max_amount ):
+                    $more = $quryRate->max_amount - $cartSubTotal;
+                    $label = $method->get_label() . ' : ' . __('Add more '.get_woocommerce_currency_symbol() . number_format((float)$more, 2, '.', '').' to get free delivery', 'easy');
+            else:
+                $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
+            endif;
+            // if ( $method->cost <= 0 ) {
+            //     $label = $method->get_label() . ' : ' . __('Free Delivery', 'easy');
+            // }
+            return $label;
+            endif;
+    }
+
         /*
         * Easy Shippinng tab content
         */
