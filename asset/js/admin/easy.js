@@ -43,17 +43,15 @@ jQuery(document).ready(function($){
 		e.preventDefault();
 		$("table.wc-shipping-zone-settings").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
 		if(easy.entry_type == 'new'){
-			
 		var deliveryAreas = [];	
-		
 			$.each(jQuery('.singleDeliverArea'), function(t, m){
 				var index = jQuery('.singleDeliverArea').index(jQuery(this));		
-				deliveryAreas[index] = new Array();
+				deliveryAreas[index] = {};
 				deliveryAreas[index]['delivery_area'] = jQuery(this).find('input[name="delivery_area"]').val();
 				deliveryAreas[index]['zipcode'] = jQuery(this).find('input[name="zipcode"]').val();
 				deliveryAreas[index]['min_amount'] = jQuery(this).find('input[name="min_amount"]').val();
 				deliveryAreas[index]['max_amount'] = jQuery(this).find('input[name="max_amount"]').val();
-				deliveryAreas[index]['delivery_charge'] = jQuery(this).find('input[name="delivery_charge"]').val();
+				deliveryAreas[index]['charge'] = jQuery(this).find('input[name="delivery_charge"]').val();
 			});
 			var deliverJsonArray = JSON.stringify(deliveryAreas);
 			var formData = {
@@ -63,19 +61,7 @@ jQuery(document).ready(function($){
 				delivery_area: 	deliverJsonArray,
 				action: 		'saveEasyData'
 			};
-			console.log(formData);
-		}else{
-			var formData = {
-				country_name: 	jQuery('select[name="country_name"]').val(),
-				state: 			jQuery('select[name="zone_locations"]').val(),
-				city: 			jQuery('input[name="city"]').val(),
-				delivery_area: 	jQuery('input[name="delivery_area"]').val(),
-				zipcode: 		jQuery('input[name="zipcode"]').val(),
-				min_amount: 	jQuery('input[name="min_amount"]').val(),
-				max_amount: 	jQuery('input[name="max_amount"]').val(),
-				charge: 		jQuery('input[name="delivery_charge"]').val(),
-				action: 		'saveEasyData'
-			};
+			//console.log(formData);
 		}
 
 		$.ajax({
@@ -84,7 +70,7 @@ jQuery(document).ready(function($){
             data : formData,
             url : easyAjax,
             success:function(data){
-				console.log(data);
+			//	console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
                 	window.location.replace(easy.easy_page);
@@ -92,7 +78,6 @@ jQuery(document).ready(function($){
             }
         });
 	});
-
 
 
 	//=================== U P D A T E  D A T A ================ *//
@@ -105,7 +90,7 @@ jQuery(document).ready(function($){
 			state: 			jQuery('select[name="zone_locations"]').val(),
 			city: 			jQuery('input[name="city"]').val(),
 			delivery_area: 	jQuery('input[name="delivery_area"]').val(),
-			zipcode: 		jQuery('input[name="zipcode"]').val(),
+			zipcode: 		jQuery('input[name="zipcode"]').val(), 
 			min_amount: 	jQuery('input[name="min_amount"]').val(),
 			max_amount: 	jQuery('input[name="max_amount"]').val(),
 			charge: 		jQuery('input[name="delivery_charge"]').val(),
@@ -118,13 +103,15 @@ jQuery(document).ready(function($){
             data : formData,
             url : easyAjax,
             success:function(data){
+				console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
-                	window.location.replace(easy.easy_page);
+                	//window.location.replace(easy.easy_page);
                 }
             }
         });
 	});
+
 
 
 	//=================== D E L E T E  D A T A ================ *//

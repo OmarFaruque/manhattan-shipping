@@ -166,3 +166,8 @@ input#easy_locationSave:disabled:hover{
     width: 100%;
     transition: unset;
 }
+span.easysippingNote {
+    font-weight: normal;
+    display: block;
+    color: #999;
+}

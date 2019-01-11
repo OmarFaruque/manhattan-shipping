@@ -307,10 +307,10 @@ if (!class_exists('manhattan_shippingClass')) {
             
             if($cartSubTotal < $quryRate->min_amount):
                     $more = $quryRate->min_amount - $cartSubTotal;
-                    $label = $method->get_label() . ' : ' . __('You should Add more '.get_woocommerce_currency_symbol() . number_format((float)$more, 2, '.', '').' for Accept order', 'easy');
+                    $label = $method->get_label() . ' : ' . __('You should Add more '.wc_price($more).' for Accept order', 'easy');
             elseif($cartSubTotal > $quryRate->min_amount && $cartSubTotal < $quryRate->max_amount ):
                     $more = $quryRate->max_amount - $cartSubTotal;
-                    $label = $method->get_label() . ' : ' . __('Add more '.get_woocommerce_currency_symbol() . number_format((float)$more, 2, '.', '').' to get free delivery', 'easy');
+                    $label = $method->get_label() . ' : ' .  wc_price($method->cost) . '<span class="easysippingNote">'. __('Add more '.wc_price($more).' to get free delivery', 'easy') . '</span>';
             else:
                 $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
             endif;
@@ -482,32 +482,37 @@ if (!class_exists('manhattan_shippingClass')) {
         function saveEasyData(){
             unset($_REQUEST['action']);
             $data = $_REQUEST;
-            $ziparray  = ($_REQUEST['zipcode'] != '')?explode('|', $_REQUEST['zipcode']):array();
+            $ziparray  = array();
             //$deliverAreas = ($_REQUEST['delivery_area'] != '')?explode('|', $_REQUEST['delivery_area']):array();
             //$data['state'] = json_encode($data['state']);
             $zipesyid = array();
-           $data['delivery_area'] = json_decode(stripslashes($data['delivery_area']));
 
             if(!isset($data['id'])){
-                
-                /*foreach($deliverAreas as $sD):
-                $insert = $this->wpdb->insert(
-                    $this->easy_shipping,
-                    array(
-                         'country_name' => $data['country_name'],
-                         'state' => $data['state'], 
-                         'city' => $data['city'], 
-                         'delivery_area' => $sD, 
-                         'min_amount' => $data['min_amount'], 
-                         'max_amount' => $data['max_amount'], 
-                         'charge' => $data['charge'], 
-                    ),
-                    array('%s', '%s', '%s', '%s', '%s', '%s', '%s')                
-                );
+                $data['delivery_area'] = json_decode(stripslashes($data['delivery_area']));
+                foreach($data['delivery_area'] as $sD):
+                    $sD->charge = ($sD->charge != '')?$sD->charge:0;
+                    if($sD->delivery_area != ''){
+                        $insert = $this->wpdb->insert(
+                            $this->easy_shipping,
+                            array(
+                                 'country_name' => $data['country_name'],
+                                 'state' => $data['state'], 
+                                 'city' => $data['city'], 
+                                 'delivery_area' => $sD->delivery_area, 
+                                 'min_amount' => $sD->min_amount, 
+                                 'max_amount' => $sD->max_amount, 
+                                 'charge' => $sD->charge, 
+                            ),
+                            array('%s', '%s', '%s', '%s', '%s', '%s', '%s')                
+                        );
+                    }
                 if($insert){
-                    array_push($zipesyid,  $this->wpdb->insert_id);
+                    if($sD->zipcode != ''){
+                        array_push($zipesyid,  $this->wpdb->insert_id);
+                        array_push($ziparray, $sD->zipcode);
+                    }
                 }
-            endforeach;*/
+            endforeach;
             }else{
                 $update = $this->wpdb->update(
                     $this->easy_shipping,
@@ -526,9 +531,16 @@ if (!class_exists('manhattan_shippingClass')) {
                 );
                 $deleteOldzip = $this->wpdb->delete($this->easy_ziptable, array('s_id' => $data['id']), array('%d'));
                 array_push($zipesyid,  $data['id']);
+                array_push($ziparray, $data['zipcode']);
             }
             
             if(count($ziparray) > 0):
+                // First Delete existing
+                $delete = $this->wpdb->delete(
+                    $this->easy_ziptable,
+                    array('s_id' => $data['id']),
+                    array('%d')
+                );
                 for($j=0; count($zipesyid) > $j; $j++ ):
                     $szipArray = explode(',', $ziparray[$j]);
                         foreach($szipArray as $sZ):
@@ -557,6 +569,7 @@ if (!class_exists('manhattan_shippingClass')) {
             );
             die();
         } // End Save
+
 
 
         /*
@@ -935,8 +948,6 @@ if (!class_exists('manhattan_shippingClass')) {
         $fields['shipping_state']['custom_attributes'] = array('readonly' => true, 'disabled'=>'disabled');
         $fields['shipping_city']['custom_attributes'] = array('readonly' => true, 'disabled'=>'disabled');
         $fields['shipping_country']['custom_attributes'] = array('readonly' => true, 'disabled'=>'disabled');
-        
-
     return $fields;
     } // End custom_woocommerce_shipping_fields();
 
