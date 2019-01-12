@@ -5,6 +5,7 @@
 
 $setArea = (isset($_COOKIE['easy_area']))?'set_true':'set_false';
 $homepage = ($home)?'home':'';
+$permalinkcity = (isset($extdata))?$extdata->city:''; 
 /*
 echo 'cookies:<pre>';
 print_r($_COOKIE);
@@ -19,7 +20,7 @@ echo '<script>
     v_state:"'.get_option( 'v_state', 'yes' ).'",
     v_city:"'.get_option( 'v_city', 'yes' ).'",
     v_popup2:"'.get_option( 'v_popup2', 'yes' ).'",
-    permalinkcity:"'.$extdata->city.'"
+    permalinkcity:"'.$permalinkcity.'"
   };
 </script>';
 

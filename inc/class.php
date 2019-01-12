@@ -787,10 +787,13 @@ if (!class_exists('manhattan_shippingClass')) {
                 $terms = get_term_by('name', $cityname, 'available-city');
                 $term_id = $terms->term_id;
 
+                $lPriceSales = get_post_meta( $p_id, '_elp_sales_price_'.$term_id, true );
                 $lPrice = get_post_meta( $p_id, '_elp_price_'.$term_id, true );
 
                 //Logic for calculating the new price here
-                if($lPrice){
+                if($lPriceSales){
+                    $cart_item['data']->set_price( $lPriceSales ); // WC 3.0+    
+                }elseif($lPriceSales == '' && $lPrice != ''){
                     $cart_item['data']->set_price( $lPrice ); // WC 3.0+    
                 }    
                 
@@ -1032,7 +1035,7 @@ if (!class_exists('manhattan_shippingClass')) {
         if($post['country'] != '') $qry.=' AND country_name="'.$post['country'].'"';
         if($post['state'] != '') $qry.=' AND state="'.$post['state'].'"';
         if($post['city'] != '') $qry.=' AND city="'.$post['city'].'"';
-        if($post['delivery_area'] != '') $qry.=' AND delivery_area="'.$post['delivery_area'].'"';
+        if($post['area'] != '') $qry.=' AND delivery_area="'.$post['area'].'"';
         $query = $this->wpdb->get_row($qry, OBJECT);
         $msg = ($query)?'success':'fail';
    
