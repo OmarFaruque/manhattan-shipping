@@ -452,6 +452,7 @@ if (!class_exists('manhattan_shippingClass')) {
         * this function return voter candidate using crosel
         */
         function frontendmanhattan_shipping(){
+            echo 'cookie: ' . $_COOKIE['easy_city'] . '<br/>';
             if(isset($_REQUEST['cid'])){
              $extdata = $this->wpdb->get_row('SELECT * FROM '.$this->easy_shipping.' WHERE id='.$_REQUEST['cid'].'', OBJECT);
             }
@@ -948,8 +949,10 @@ if (!class_exists('manhattan_shippingClass')) {
             'default' => $_COOKIE['easy_area'],
             'custom_attributes' => array('readonly' => true)
         );
+        $fields['shipping_state']['type'] = 'text';
         $fields['shipping_state']['custom_attributes'] = array('readonly' => true);
         $fields['shipping_city']['custom_attributes'] = array('readonly' => true);
+        $fields['shipping_country']['type'] = 'text';
         $fields['shipping_country']['custom_attributes'] = array('readonly' => true);
     return $fields;
     } // End custom_woocommerce_shipping_fields();
@@ -959,9 +962,11 @@ if (!class_exists('manhattan_shippingClass')) {
     * Set Shipping Value using previous stored cookie
     */
     function set_country_befor_cart_page(){
+        
         WC()->customer->set_country($_COOKIE['easy_country']); //reset default country
         WC()->customer->set_shipping_country($_COOKIE['easy_country']);
 
+        //$stateme = WC()->countries->get_states( $_COOKIE['easy_country'] )[$_COOKIE['easy_state']]; 
         WC()->customer->set_state($_COOKIE['easy_state']); //reset default country
         WC()->customer->set_shipping_state($_COOKIE['easy_state']);
 
