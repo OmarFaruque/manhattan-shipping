@@ -946,11 +946,11 @@ if (!class_exists('manhattan_shippingClass')) {
             'type' => 'text', // add field type
             'class' => array('easyautoarea'),    // add class name
             'default' => $_COOKIE['easy_area'],
-            'custom_attributes' => array('readonly' => true, 'disabled'=>'disabled')
+            'custom_attributes' => array('readonly' => true)
         );
-        $fields['shipping_state']['custom_attributes'] = array('readonly' => true, 'disabled'=>'disabled');
-        $fields['shipping_city']['custom_attributes'] = array('readonly' => true, 'disabled'=>'disabled');
-        $fields['shipping_country']['custom_attributes'] = array('readonly' => true, 'disabled'=>'disabled');
+        $fields['shipping_state']['custom_attributes'] = array('readonly' => true);
+        $fields['shipping_city']['custom_attributes'] = array('readonly' => true);
+        $fields['shipping_country']['custom_attributes'] = array('readonly' => true);
     return $fields;
     } // End custom_woocommerce_shipping_fields();
 
