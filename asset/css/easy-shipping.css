@@ -171,3 +171,7 @@ span.easysippingNote {
     display: block;
     color: #999;
 }
+div#order_review .blockUI.blockOverlay,
+div#payment .blockUI.blockOverlay {
+    display: none !important;
+}

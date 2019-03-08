@@ -765,7 +765,7 @@ if (!class_exists('manhattan_shippingClass')) {
               $terms = get_term_by('name', $cityname, 'available-city');
               $term_id = $terms->term_id;
 
-              $lPrice = get_post_meta( $post->ID, '_elp_sales_price_'.$term_id, true );
+              $lPrice = @get_post_meta( $post->ID, '_elp_sales_price_'.$term_id, true );
           }
 
           //Logic for calculating the new price here
