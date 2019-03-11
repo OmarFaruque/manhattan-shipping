@@ -452,7 +452,6 @@ if (!class_exists('manhattan_shippingClass')) {
         * this function return voter candidate using crosel
         */
         function frontendmanhattan_shipping(){
-            echo 'cookie: ' . $_COOKIE['easy_city'] . '<br/>';
             if(isset($_REQUEST['cid'])){
              $extdata = $this->wpdb->get_row('SELECT * FROM '.$this->easy_shipping.' WHERE id='.$_REQUEST['cid'].'', OBJECT);
             }

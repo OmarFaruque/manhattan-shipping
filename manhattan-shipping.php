@@ -27,7 +27,7 @@ define('SHIPPINGURL', plugin_dir_url( __FILE__ ));
 
 
 
-function pluginprefix_deactivation(){
+function easy_shipping_pluginprefix_deactivation(){
         /* if uninstall not called from WordPress exit */
         /*if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
             exit;
@@ -36,12 +36,15 @@ function pluginprefix_deactivation(){
 //    $wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."easy_shipping" );
 //    $wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."easy_ziptable" );
 }
-register_deactivation_hook( __FILE__, 'pluginprefix_deactivation');
+register_deactivation_hook( __FILE__, 'easy_shipping_pluginprefix_deactivation');
 
-
-require_once(SHIPPINGDIR . 'inc/class.php');
-
-new manhattan_shipping\manhattan_shippingClass;
+add_action('plugins_loaded', 'easy_shippingLoadClass');
+function easy_shippingLoadClass() {
+    if(class_exists('woocommerce')):
+        require_once(SHIPPINGDIR . 'inc/class.php');
+        new manhattan_shipping\manhattan_shippingClass;
+    endif;
+}
 
 /* New Shipping */
 require_once SHIPPINGDIR.'inc/easy-shipping.php';

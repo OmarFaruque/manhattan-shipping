@@ -28,9 +28,9 @@ echo '<script>
 
 if(isset($_COOKIE['easy_state'])){
   $output = '<div id="deliverAreaReset"><div class="innerD">';
-      $output.=($_COOKIE['easy_state'] != 'undefined')?'<span class="state"><b>State: </b>'.WC()->countries->get_states( $_COOKIE['easy_country'] )[$_COOKIE['easy_state']].'</span>':'';
-      $output.='<span class="city"><b>City: </b>'.$_COOKIE['easy_city'].'</span>
-      <span class="area"><b>Deliver Area: </b>'.$_COOKIE['easy_area'].'</span>
+      $output.=($_COOKIE['easy_state'] != 'undefined')?'<span class="state"><b><i>State: '.WC()->countries->get_states( $_COOKIE['easy_country'] )[$_COOKIE['easy_state']].'</i></b></span>':'';
+      $output.='<span class="city"><b><i>City: '.$_COOKIE['easy_city'].'</span></i></b>
+      <span class="area"><b><i>Delivery Area: '.$_COOKIE['easy_area'].'</span></i></b>
       <span id="changeDeliverAreay"><button type="button" class="btn btn-primary">'.__('Change', 'easy').'</button></span>
   </div></div>';  
 }else{
