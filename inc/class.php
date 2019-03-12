@@ -1174,8 +1174,7 @@ if (!class_exists('manhattan_shippingClass')) {
             $style = ' style="color:#fff;cursor:not-allowed;background-color:#999;"';
             return '<a class="button alt"'.$style.' name="woocommerce_checkout_place_order" id="place_order" >' .  $order_button_text  . '</a>';
         }
-    
-        
+
     }
 
     } // End Class
