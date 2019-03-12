@@ -96,7 +96,8 @@ if (!class_exists('manhattan_shippingClass')) {
             }
             
 
-            
+            add_filter( 'woocommerce_shipping_package_name', array($this, 'easy_shipping_package_name') );
+            add_filter( 'woocommerce_order_button_html', array($this, 'replace_order_button_html'), 10, 2 );
             /*
             * Ajax Functions List Backend 
             */
@@ -209,7 +210,9 @@ if (!class_exists('manhattan_shippingClass')) {
 
         } // End init()
 
-
+        function easy_shipping_package_name( $name ) {
+            return __('Delivery', 'easy');
+        }
         function wporder_posts_filter($query){
             global $pagenow;
             $type = 'shop_order';
@@ -307,10 +310,11 @@ if (!class_exists('manhattan_shippingClass')) {
             
             if($cartSubTotal < $quryRate->min_amount):
                     $more = $quryRate->min_amount - $cartSubTotal;
-                    $label = $method->get_label() . ' : ' . __('You should Add more '.wc_price($more).' for Accept order', 'easy');
+                    $label = __('Our minimum order amount is '.wc_price($quryRate->min_amount).' please add '.wc_price($more).' more to accept order!', 'easy');
+                    remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
             elseif($cartSubTotal > $quryRate->min_amount && $cartSubTotal < $quryRate->max_amount ):
                     $more = $quryRate->max_amount - $cartSubTotal;
-                    $label = $method->get_label() . ' : ' .  wc_price($method->cost) . '<span class="easysippingNote">'. __('Add more '.wc_price($more).' to get free delivery', 'easy') . '</span>';
+                    $label = $method->get_label() . ' : ' .  wc_price($method->cost) . '<span class="easysippingNote">'. __('We offer Free Normal Delivery on '.wc_price($quryRate->max_amount).' or more. Please add '.wc_price($more).' to get free Normal Delivery.', 'easy') . '</span>';
             else:
                 $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
             endif;
@@ -948,11 +952,11 @@ if (!class_exists('manhattan_shippingClass')) {
             'default' => $_COOKIE['easy_area'],
             'custom_attributes' => array('readonly' => true)
         );
-        $fields['shipping_state']['type'] = 'text';
-        $fields['shipping_state']['custom_attributes'] = array('readonly' => true);
+        
+        $fields['shipping_state']['custom_attributes'] = array('readonly' => true, 'disabled' => true);
         $fields['shipping_city']['custom_attributes'] = array('readonly' => true);
-        $fields['shipping_country']['type'] = 'text';
-        $fields['shipping_country']['custom_attributes'] = array('readonly' => true);
+        
+        $fields['shipping_country']['custom_attributes'] = array('readonly' => true, 'disabled' => true);
     return $fields;
     } // End custom_woocommerce_shipping_fields();
 
@@ -1141,6 +1145,37 @@ if (!class_exists('manhattan_shippingClass')) {
             )
         );
         die();
+    }
+
+    function get_total_volume(){
+        $total_volume = 0;
+    
+         // Loop through cart items and calculate total volume
+        foreach( WC()->cart->get_cart() as $cart_item ){
+            $product_volume = (float) get_post_meta( $cart_item['product_id'], '_item_volume', true );
+            $total_volume  += $product_volume * $cart_item['quantity'];
+        }
+        return $total_volume;
+    }
+
+    function replace_order_button_html( $order_button ) {
+        $country    = $_COOKIE['easy_country'];
+        $state      = $_COOKIE['easy_state'];
+        $city       = $_COOKIE['easy_city'];
+        $area       = $_COOKIE['easy_area'];
+
+        $cartSubTotal = WC()->cart->subtotal;
+        $quryRate = $this->wpdb->get_row('SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"', OBJECT);
+        if( $cartSubTotal > $quryRate->min_amount ){
+            return $order_button;
+        }else{
+            $more = $quryRate->min_amount - $cartSubTotal;
+            $order_button_text = __( "Add more ".wc_price($more)." to accept order", "easy" );    
+            $style = ' style="color:#fff;cursor:not-allowed;background-color:#999;"';
+            return '<a class="button alt"'.$style.' name="woocommerce_checkout_place_order" id="place_order" >' .  $order_button_text  . '</a>';
+        }
+    
+        
     }
 
     } // End Class

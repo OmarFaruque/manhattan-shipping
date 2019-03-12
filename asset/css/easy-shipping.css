@@ -179,3 +179,6 @@ div#payment .blockUI.blockOverlay {
 {
     text-align: right;
 } */
+select::-ms-expand {
+    display: none;
+}
