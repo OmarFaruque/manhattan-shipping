@@ -26,6 +26,14 @@ jQuery(document).ready(function($){
         });
 	}); // End select#zone_name
 
+	jQuery(document.body).on('click', 'table.wc-shipping-zones.lists a.edit', function(e){
+		e.preventDefault();
+		var name = jQuery(this).data('name');
+		var html = 	'<div class="form-group">'
+					+'<input class="form-control" type="text" value="" name="'+name+'" />';
+					+'</div>';
+	});
+
 	// Enable save button
 	jQuery(document.body).on('keyup', 'input#delivery_area', function(){
 		var thisVal = jQuery(this).val();

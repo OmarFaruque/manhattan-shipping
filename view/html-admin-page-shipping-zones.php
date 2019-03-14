@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
+
 <h2 class="wc-shipping-zones-heading">
 	<?php _e( 'Shipping zones', 'easy' ); ?>
 	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&zone_id=new' ); ?>" class="page-title-action"><?php esc_html_e( 'Add shipping zone', 'woocommerce' ); ?></a>
@@ -22,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>-->
 </div>
 
-<table id="dataTable" class="wc-shipping-zones widefat">
+<table id="dataTable" class="wc-shipping-zones lists widefat">
 	<thead>
 		<tr>
 			<th class="wc-shipping-zone-select">
@@ -32,6 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<th class="wc-shipping-zone-zipcode"><?php esc_html_e( 'Ziocodes', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-country"><?php esc_html_e( 'Country', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'easy' ); ?></th>
@@ -50,12 +52,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$output .= '<td class="wc-shipping-zone-name">
 					<a href="admin.php?page=wc-settings&amp;tab=easy_shipping&amp;zone_id='.$s_ship->id.'">'.$s_ship->delivery_area.'</a>
 					<div class="row-actions">
-						<a href="admin.php?page=wc-settings&amp;tab=easy_shipping&amp;zone_id='.$s_ship->id.'">'. __( 'Edit', 'woocommerce' ).'</a> | <a href="#" class="easy_shipping_d wc-shipping-zone-delete">'. __( 'Delete', 'woocommerce' ).'</a>
+						<a class="ajax edit" data-name="delivery_area" href="#">'. __( 'Edit', 'woocommerce' ).'</a> | <a href="#" class="easy_shipping_d wc-shipping-zone-delete">'. __( 'Delete', 'woocommerce' ).'</a>
 					</div>
 					</td>';
-			$output .= '<td class="wc-shipping-zipcodes">'.$zopcodes.'</td>';
-			$output .= '<td class="wc-shipping-city">'.$s_ship->city.'</td>';
+			$output .= '<td class="wc-shipping-zipcodes zipcode">'.$zopcodes.'
+						<div class="row-actions">
+							<a data-name="zipcode" class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+			</td>';
+			$output .= '<td class="wc-shipping-city city">'.$s_ship->city.'</td>';
 			$output .= '<td class="wc-shipping-state">'.WC()->countries->get_states( $s_ship->country_name )[$s_ship->state].'</td>';
+			$output .= '<td class="wc-shipping-country">'.WC()->countries->countries[$s_ship->country_name].'</td>';
 			$output .= '<td width="1%" class="wc-shipping-min">'.get_woocommerce_currency_symbol(). $s_ship->min_amount.'</td>';
 			$output .= '<td width="1%" class="wc-shipping-max">'.get_woocommerce_currency_symbol().$s_ship->max_amount.'</td>';
 			$output .= '<td class="wc-shipping-charge">'.get_woocommerce_currency_symbol().$s_ship->charge.'</td>';
@@ -73,6 +80,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<th class="wc-shipping-zone-zipcode"><?php esc_html_e( 'Ziocodes', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'woocommerce' ); ?></th>
 			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'woocommerce' ); ?></th>
+			<th class="wc-shipping-zone-country"><?php esc_html_e( 'Country', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'woocommerce' ); ?></th>
 			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'woocommerce' ); ?></th>
 			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'woocommerce' ); ?></th>
