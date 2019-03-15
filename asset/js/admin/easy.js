@@ -28,10 +28,33 @@ jQuery(document).ready(function($){
 
 	jQuery(document.body).on('click', 'table.wc-shipping-zones.lists a.edit', function(e){
 		e.preventDefault();
-		var name = jQuery(this).data('name');
-		var html = 	'<div class="form-group">'
-					+'<input class="form-control" type="text" value="" name="'+name+'" />';
-					+'</div>';
+		jQuery(this).closest('td').find('.row-actions, span.data').addClass('hidden');
+		jQuery(this).closest('td').find('.form-group').removeClass('hidden');
+	});
+
+	jQuery(document.body).on('click', 'span.savebutton', function(){
+		$("table.wc-shipping-zones").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
+		var id = jQuery(this).closest('tr').data('id'),
+		name = jQuery(this).closest('td').data('name');
+		jQuery.ajax({
+            type : 'post',
+            dataType: 'json',
+            data : {
+				'id'            : id,
+				'name' 			: name,
+                'action'        : 'updateEasyShippingListData' 
+            },
+            url : easyAjax,
+            success:function(data){
+            	console.log(data);
+                if(data.message == 'success'){
+                	$("table.wc-shipping-zones").unblock();
+                	
+                	//jQuery('select#zone_locations').html(output);
+                }
+            }
+        });
+
 	});
 
 	// Enable save button

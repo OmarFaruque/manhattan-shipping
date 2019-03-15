@@ -55,9 +55,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<a class="ajax edit" data-name="delivery_area" href="#">'. __( 'Edit', 'woocommerce' ).'</a> | <a href="#" class="easy_shipping_d wc-shipping-zone-delete">'. __( 'Delete', 'woocommerce' ).'</a>
 					</div>
 					</td>';
-			$output .= '<td class="wc-shipping-zipcodes zipcode">'.$zopcodes.'
+			$output .= '<td data-name="zipcode" class="wc-shipping-zipcodes zipcode">
+						<span class="data">'.$zopcodes.'</span>
 						<div class="row-actions">
-							<a data-name="zipcode" class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<input class="form-control" type="text" value="'.$zopcodes.'" name="zipcode" />
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
 						</div>
 			</td>';
 			$output .= '<td class="wc-shipping-city city">'.$s_ship->city.'</td>';

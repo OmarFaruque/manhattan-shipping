@@ -191,6 +191,11 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action('wp_ajax_nopriv_popupaction2', array($this, 'popupaction2'));
             add_action( 'wp_ajax_popupaction2', array($this, 'popupaction2') );
 
+            // Update List Data 
+            
+            add_action('wp_ajax_nopriv_saveEasyDataupdateEasyShippingListData', array($this, 'saveEasyDataupdateEasyShippingListData'));
+            add_action( 'wp_ajax_saveEasyDataupdateEasyShippingListData', array($this, 'saveEasyDataupdateEasyShippingListData') );
+
 
             /***====================== New Admin filder to woocommerce product ========================**/
             add_action( 'restrict_manage_posts', array($this, 'admin_posts_filter_restrict_manage_posts_by_taxonomy') );
@@ -1175,6 +1180,16 @@ if (!class_exists('manhattan_shippingClass')) {
             return '<a class="button alt"'.$style.' name="woocommerce_checkout_place_order" id="place_order" >' .  $order_button_text  . '</a>';
         }
 
+    }
+
+    // Update shipping data 
+    function saveEasyDataupdateEasyShippingListData(){
+        echo json_encode(
+            array(
+                'msg' => 'success'
+            )
+        );
+        die();
     }
 
     } // End Class

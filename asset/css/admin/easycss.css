@@ -207,3 +207,16 @@ table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete:hov
   display: inline-block;
   margin-right: 5px !important;
 }
+span.savebutton {
+  display: block;
+  background-color: #03A9F4;
+  color: #fff;
+  width: 29px;
+  text-align: center;
+  margin-top: 2px;
+  cursor: pointer;
+  margin-left: 2px;
+}
+span.savebutton:hover{
+  background-color: gray;
+}
