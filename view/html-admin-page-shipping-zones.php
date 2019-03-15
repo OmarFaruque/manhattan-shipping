@@ -2,6 +2,11 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$continents = WC()->countries->get_continents(); 
+echo '<pre>';
+print_r($continents);
+echo '<pre>';
 ?>
 
 
@@ -65,9 +70,50 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
 						</div>
 			</td>';
-			$output .= '<td class="wc-shipping-city city">'.$s_ship->city.'</td>';
-			$output .= '<td class="wc-shipping-state">'.WC()->countries->get_states( $s_ship->country_name )[$s_ship->state].'</td>';
-			$output .= '<td class="wc-shipping-country">'.WC()->countries->countries[$s_ship->country_name].'</td>';
+			$output .= '<td class="wc-shipping-city city">
+						<span class="data">'.$s_ship->city.'</span>
+						<div class="row-actions">
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<input class="form-control" type="text" value="'.$s_ship->city.'" name="city" />
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
+			</td>';
+			$output .= '<td class="wc-shipping-state">
+						<span class="data">'.WC()->countries->get_states( $s_ship->country_name )[$s_ship->state].'</span>
+						<div class="row-actions">
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<select name="state" class="form-control">';
+							$states = WC()->countries->get_states( $s_ship->country_name );
+							foreach($states as $k => $sState):
+								$output.= '<option value="'.$k.'">'.$sState.'</option>';
+							endforeach;
+							$output .='</select>
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
+			</td>';
+			$output .= '<td class="wc-shipping-country">
+			
+			<span class="data">'.WC()->countries->countries[$s_ship->country_name].'</span>
+
+			<div class="row-actions">
+			<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+		</div>
+		<div class="form-group hidden">
+			<select name="country_name" class="form-control">';
+			$continents = WC()->countries->get_continents();
+			foreach($continents as $k => $sCountry):
+				$output.= '<option value="'.$sCountry.'">'.WC()->countries->countries[$sCountry].'</option>';
+			endforeach;
+			$output .='</select>
+			<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+		</div>
+
+
+			</td>';
 			$output .= '<td width="1%" class="wc-shipping-min">'.get_woocommerce_currency_symbol(). $s_ship->min_amount.'</td>';
 			$output .= '<td width="1%" class="wc-shipping-max">'.get_woocommerce_currency_symbol().$s_ship->max_amount.'</td>';
 			$output .= '<td class="wc-shipping-charge">'.get_woocommerce_currency_symbol().$s_ship->charge.'</td>';

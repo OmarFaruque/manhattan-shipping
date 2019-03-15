@@ -35,13 +35,18 @@ jQuery(document).ready(function($){
 	jQuery(document.body).on('click', 'span.savebutton', function(){
 		$("table.wc-shipping-zones").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
 		var id = jQuery(this).closest('tr').data('id'),
-		name = jQuery(this).closest('td').data('name');
+		name = jQuery(this).closest('td').find('input').attr('name'),
+		value = jQuery(this).closest('td').find('input').val();
+		if(typeof name == 'undefined') name = jQuery(this).closest('td').find('select').attr('name');
+		if(typeof value == 'undefined') value = jQuery(this).closest('td').find('select').val();
+
 		jQuery.ajax({
             type : 'post',
             dataType: 'json',
             data : {
 				'id'            : id,
 				'name' 			: name,
+				'value' 		: value,
                 'action'        : 'updateEasyShippingListData' 
             },
             url : easyAjax,

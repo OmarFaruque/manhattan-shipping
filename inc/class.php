@@ -192,9 +192,8 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action( 'wp_ajax_popupaction2', array($this, 'popupaction2') );
 
             // Update List Data 
-            
-            add_action('wp_ajax_nopriv_saveEasyDataupdateEasyShippingListData', array($this, 'saveEasyDataupdateEasyShippingListData'));
-            add_action( 'wp_ajax_saveEasyDataupdateEasyShippingListData', array($this, 'saveEasyDataupdateEasyShippingListData') );
+            add_action('wp_ajax_nopriv_updateEasyShippingListData', array($this, 'updateEasyShippingListData'));
+            add_action( 'wp_ajax_updateEasyShippingListData', array($this, 'updateEasyShippingListData') );
 
 
             /***====================== New Admin filder to woocommerce product ========================**/
@@ -1183,10 +1182,42 @@ if (!class_exists('manhattan_shippingClass')) {
     }
 
     // Update shipping data 
-    function saveEasyDataupdateEasyShippingListData(){
+    function updateEasyShippingListData(){
+        switch($_POST['name']){
+            case 'zipcode':
+                $zipArray = explode(',',$_POST['value']);
+                $this->wpdb->delete(
+                    $this->easy_ziptable,
+                    array('s_id' => $_POST['id']),
+                    array('%d')
+                );
+                foreach($zipArray as $szip):
+                    $this->wpdb->insert(
+                        $this->easy_ziptable,
+                        array(
+                            'zipcode' => $szip,
+                            's_id' => $_POST['id']
+                        ),
+                        array('%s', '%d')
+                    );
+                endforeach;
+            break;
+            default:
+            $update = $this->wpdb->update(
+                $this->easy_shipping,
+                array(
+                    $_POST['name'] => $_POST['value']
+                ),
+                array('id' => $_POST['id']),
+                array('%s'),
+                array('%d')
+            );
+        }
+
         echo json_encode(
             array(
-                'msg' => 'success'
+                'msg' => 'success',
+                'post' => $_POST
             )
         );
         die();
