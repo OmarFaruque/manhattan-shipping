@@ -72,6 +72,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
 
         private function init(){
+            
 
             add_action( 'admin_enqueue_scripts', array($this, 'manhattan_shipping_backend_script') );
 
@@ -208,11 +209,24 @@ if (!class_exists('manhattan_shippingClass')) {
 
             /* ============= Different shipping open by default ================*/ 
             add_filter( 'woocommerce_ship_to_different_address_checked', '__return_true' );
+
+            add_action( 'woocommerce_checkout_fields', array($this, 'my_custom_shipping_calculator_field') );
             
             endif;
 
 
         } // End init()
+
+        function custom_override_checkout_fields( $fields ) {
+
+            $fields['shipping']['custom_field'] = array(
+                'label' => 'Custom field',
+                'required' => 1,
+                'class' => array ('address-field', 'update_totals_on_change' )
+            );
+        
+            return $fields;
+        }
 
         function easy_shipping_package_name( $name ) {
             return __('Delivery', 'easy');
@@ -708,7 +722,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
 
         /*
-        * Active Easy Shipping and Deactive other shipping method
+        * Active Normal Delivery and Deactive other shipping method
         */
         function activeShippingMethod(){
             $active = $_REQUEST['active'];
@@ -811,7 +825,7 @@ if (!class_exists('manhattan_shippingClass')) {
          }
 
          /*
-         * Set Easy Shipping Area as Location Taxonomy for woocommerce product
+         * Set Normal Delivery Area as Location Taxonomy for woocommerce product
          */
          function insertAreatoAsCityTax(){
             $allCitys = $this->wpdb->get_results('SELECT `country_name`, `city` FROM '.$this->easy_shipping.' WHERE city!="" GROUP BY `city` ORDER BY `city` ASC', OBJECT);

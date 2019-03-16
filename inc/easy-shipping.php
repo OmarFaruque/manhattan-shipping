@@ -16,10 +16,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
           $status = (get_option( 'easy_shipping', 0 )==1)?'yes':'no';
           $this->id                 = 'easy_shipping'; // Id for your shipping method. Should be uunique.
-          $this->method_title       = __( 'Easy Shipping' );  // Title shown in admin
-          $this->method_description = wp_sprintf('Click %s Easy Shipping</a> Tab from top Tab list for setting Easy Shipping.', '<a href="'.admin_url( '/admin.php?page=wc-settings&tab=easy_shipping', 'admin' ).'">'); // Description shown in admin
+          $this->method_title       = __( 'Normal Delivery' );  // Title shown in admin
+          $this->method_description = wp_sprintf('Click %s Normal Delivery</a> Tab from top Tab list for setting Normal Delivery.', '<a href="'.admin_url( '/admin.php?page=wc-settings&tab=easy_shipping', 'admin' ).'">'); // Description shown in admin
           $this->enabled            = $status; // This can be added as an setting but for this example its forced enabled
-          $this->title              = "Easy Shipping"; // This can be added as an setting but for this example its forced.
+          $this->title              = "Normal Delivery"; // This can be added as an setting but for this example its forced.
           $this->init();
         }
         /**

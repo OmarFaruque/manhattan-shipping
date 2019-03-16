@@ -22,7 +22,7 @@ foreach($continents as $sk){
 <p><?php echo __( 'A shipping zone is a geographic region where a certain set of shipping methods are offered.', 'woocommerce' ) . ' ' . __( 'WooCommerce will match a customer to a single zone using their shipping address and present the shipping methods within that zone to them.', 'woocommerce' ); ?></p>
 
 <div class="easy left">
-	<p><fieldset><label><input type="checkbox" <?php echo ($status == 1)?'checked':''; ?> value="1" name="active_easy" id="active_easy"/>&nbsp;<?php _e('Active Easy Shipping', 'woocommerce'); ?></label></fieldset></p>
+	<p><fieldset><label><input type="checkbox" <?php echo ($status == 1)?'checked':''; ?> value="1" name="active_easy" id="active_easy"/>&nbsp;<?php _e('Active Normal Delivery', 'woocommerce'); ?></label></fieldset></p>
 </div>
 <div class="easy right">
 	<!--<div class="form-group">
