@@ -36,7 +36,8 @@ jQuery(document).ready(function($){
 		$("table.wc-shipping-zones").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
 		var id = jQuery(this).closest('tr').data('id'),
 		name = jQuery(this).closest('td').find('input').attr('name'),
-		value = jQuery(this).closest('td').find('input').val();
+		value = jQuery(this).closest('td').find('input').val(),
+		thisItem = jQuery(this).closest('td');
 		if(typeof name == 'undefined') name = jQuery(this).closest('td').find('select').attr('name');
 		if(typeof value == 'undefined') value = jQuery(this).closest('td').find('select').val();
 
@@ -52,10 +53,11 @@ jQuery(document).ready(function($){
             url : easyAjax,
             success:function(data){
             	console.log(data);
-                if(data.message == 'success'){
-                	$("table.wc-shipping-zones").unblock();
-                	
-                	//jQuery('select#zone_locations').html(output);
+                if(data.msg == 'success'){
+					$("table.wc-shipping-zones").unblock();
+					thisItem.find('.row-actions, span.data').text(value);
+                	thisItem.find('.row-actions, span.data').removeClass('hidden');
+					thisItem.find('.form-group').addClass('hidden');
                 }
             }
         });

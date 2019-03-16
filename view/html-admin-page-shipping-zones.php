@@ -4,9 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $continents = WC()->countries->get_continents(); 
-echo '<pre>';
-print_r($continents);
-echo '<pre>';
+
+$countrys = array(); 
+foreach($continents as $sk){
+	foreach($sk['countries'] as $sc) array_push($countrys, $sc);
+} 
+
 ?>
 
 
@@ -96,27 +99,49 @@ echo '<pre>';
 						</div>
 			</td>';
 			$output .= '<td class="wc-shipping-country">
-			
-			<span class="data">'.WC()->countries->countries[$s_ship->country_name].'</span>
-
-			<div class="row-actions">
-			<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
-		</div>
-		<div class="form-group hidden">
-			<select name="country_name" class="form-control">';
-			$continents = WC()->countries->get_continents();
-			foreach($continents as $k => $sCountry):
-				$output.= '<option value="'.$sCountry.'">'.WC()->countries->countries[$sCountry].'</option>';
-			endforeach;
-			$output .='</select>
-			<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
-		</div>
-
-
+						<span class="data">'.WC()->countries->countries[$s_ship->country_name].'</span>
+						<div class="row-actions">
+						<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<select name="country_name" class="form-control">';
+							foreach($countrys as $k => $sCountry):
+								$output.= '<option value="'.$sCountry.'">'.WC()->countries->countries[$sCountry].'</option>';
+							endforeach;
+							$output .='</select>
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
+						</td>';
+			$output .= '<td width="1%" class="wc-shipping-min">
+						<span class="data">'.get_woocommerce_currency_symbol(). $s_ship->min_amount.'</span>
+						<div class="row-actions">
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<input class="form-control" type="text" value="'.$s_ship->min_amount.'" name="min_amount" />
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
 			</td>';
-			$output .= '<td width="1%" class="wc-shipping-min">'.get_woocommerce_currency_symbol(). $s_ship->min_amount.'</td>';
-			$output .= '<td width="1%" class="wc-shipping-max">'.get_woocommerce_currency_symbol().$s_ship->max_amount.'</td>';
-			$output .= '<td class="wc-shipping-charge">'.get_woocommerce_currency_symbol().$s_ship->charge.'</td>';
+			$output .= '<td width="1%" class="wc-shipping-max">
+						<span class="data">'.get_woocommerce_currency_symbol().$s_ship->max_amount.'</span>
+						<div class="row-actions">
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<input class="form-control" type="text" value="'.$s_ship->max_amount.'" name="max_amount" />
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
+			</td>';
+			$output .= '<td class="wc-shipping-charge">
+			<span class="data">'.get_woocommerce_currency_symbol().$s_ship->charge.'</span>
+						<div class="row-actions">
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<input class="form-control" type="text" value="'.$s_ship->charge.'" name="charge" />
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
+			</td>';
 			$output .= '</tr>';
 		}
 		echo $output;
