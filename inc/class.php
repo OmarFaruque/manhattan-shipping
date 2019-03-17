@@ -210,7 +210,8 @@ if (!class_exists('manhattan_shippingClass')) {
             /* ============= Different shipping open by default ================*/ 
             add_filter( 'woocommerce_ship_to_different_address_checked', '__return_true' );
 
-            add_action( 'woocommerce_checkout_fields', array($this, 'my_custom_shipping_calculator_field') );
+            // Change Woocommerce Template path to from this plugin
+            add_filter( 'woocommerce_locate_template', array($this, 'woo_easy_plugin_template'), 1, 3 );
             
             endif;
 
@@ -1236,6 +1237,36 @@ if (!class_exists('manhattan_shippingClass')) {
         );
         die();
     }
+
+
+    /*
+    * Woocommerce Template path
+    */
+    function woo_easy_plugin_template( $template, $template_name, $template_path ) {
+        global $woocommerce;
+        $_template = $template;
+        if ( ! $template_path ) 
+           $template_path = $woocommerce->template_url;
+    
+        $plugin_path  = untrailingslashit( $this->plugin_dir )  . '/woocommerce/templates/';
+    
+       // Look within passed path within the theme - this is priority
+       $template = locate_template(
+       array(
+         $template_path . $template_name,
+         $template_name
+       )
+      );
+    
+      if( ! $template && file_exists( $plugin_path . $template_name ) ){
+       $template = $plugin_path . $template_name;
+      }
+    
+      if ( ! $template )
+       $template = $_template;
+   
+      return $template;
+   }
 
     } // End Class
 } // End Class check if exist / not 
