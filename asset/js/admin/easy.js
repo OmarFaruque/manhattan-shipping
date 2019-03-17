@@ -55,7 +55,7 @@ jQuery(document).ready(function($){
             	console.log(data);
                 if(data.msg == 'success'){
 					$("table.wc-shipping-zones").unblock();
-					thisItem.find('.row-actions, span.data').text(value);
+					thisItem.find('span.data').text(value);
                 	thisItem.find('.row-actions, span.data').removeClass('hidden');
 					thisItem.find('.form-group').addClass('hidden');
                 }
