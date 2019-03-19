@@ -20,6 +20,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
           $this->method_description = wp_sprintf('Click %s Normal Delivery</a> Tab from top Tab list for setting Normal Delivery.', '<a href="'.admin_url( '/admin.php?page=wc-settings&tab=easy_shipping', 'admin' ).'">'); // Description shown in admin
           $this->enabled            = $status; // This can be added as an setting but for this example its forced enabled
           $this->title              = "Normal Delivery"; // This can be added as an setting but for this example its forced.
+
+          // Express Delivery 
+          $this->id2                 = 'express_delivery'; // Id for your shipping method. Should be uunique.
+          $this->method_title2       = __( 'Express Delivery' );  // Title shown in admin
+          $this->method_description2 = wp_sprintf('Click %s Normal Delivery</a> Tab from top Tab list for setting Normal Delivery.', '<a href="'.admin_url( '/admin.php?page=wc-settings&tab=easy_shipping', 'admin' ).'">'); // Description shown in admin
+          $this->enabled2            = $status; // This can be added as an setting but for this example its forced enabled
+          $this->title2              = "Normal Delivery"; // This can be added as an setting but for this example its forced.
           $this->init();
         }
         /**

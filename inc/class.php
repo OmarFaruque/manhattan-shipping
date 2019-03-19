@@ -317,14 +317,14 @@ if (!class_exists('manhattan_shippingClass')) {
     * Show free delivery text if shipping value 0
     */
     function changeShippingLabe($label, $method){
-         if(isset($_COOKIE['easy_area'])):
+         if(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'easy_shipping'):
             $country    = $_COOKIE['easy_country'];
             $state      = $_COOKIE['easy_state'];
             $city       = $_COOKIE['easy_city'];
             $area       = $_COOKIE['easy_area'];
     
             $cartSubTotal = WC()->cart->subtotal;
-    
+
             $quryRate = $this->wpdb->get_row('SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"', OBJECT);
             
             if($cartSubTotal < $quryRate->min_amount):
@@ -337,10 +337,9 @@ if (!class_exists('manhattan_shippingClass')) {
             else:
                 $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
             endif;
-            // if ( $method->cost <= 0 ) {
-            //     $label = $method->get_label() . ' : ' . __('Free Delivery', 'easy');
-            // }
             return $label;
+            else:
+                return $label;
             endif;
     }
 
