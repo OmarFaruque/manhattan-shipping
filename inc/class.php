@@ -46,6 +46,8 @@ if (!class_exists('manhattan_shippingClass')) {
                      min_amount varchar(100) NOT NULL, 
                      max_amount varchar(100) NOT NULL, 
                      charge varchar(100) NOT NULL, 
+                     active_express int(20) NOT NULL,
+                     express_delivery varchar(100) NOT NULL,
                      created_dt timestamp NOT NULL,
                      UNIQUE KEY id (id)
                 ) $charset_collate;";

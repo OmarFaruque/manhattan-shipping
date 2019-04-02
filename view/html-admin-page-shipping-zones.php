@@ -45,6 +45,7 @@ foreach($continents as $sk){
 			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-express"><?php esc_html_e( 'Express Delivery', 'easy' ); ?></th>
 		</tr>
 	</thead>
 	<tbody class="wc-shipping-zone-rows">
@@ -144,6 +145,21 @@ foreach($continents as $sk){
 							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
 						</div>
 			</td>';
+			
+			//Express Delivery							
+			$output .= '<td class="wc-shipping-express">
+			<span class="activeExpressDelivery">
+					<input name="active_express" type="checkbox" value="1" />
+			</span>
+			<span class="data">'.get_woocommerce_currency_symbol().$s_ship->express_delivery.'</span>
+						<div class="row-actions">
+							<a class="ajax edit" href="#">'. __( 'Edit', 'woocommerce' ).'</a>
+						</div>
+						<div class="form-group hidden">
+							<input class="form-control" type="text" value="'.$s_ship->express_delivery.'" name="express_delivery" />
+							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
+						</div>
+			</td>';
 			$output .= '</tr>';
 		}
 		echo $output;
@@ -154,14 +170,15 @@ foreach($continents as $sk){
 			<th class="wc-shipping-zone-select">
 				<input style="margin-left:0;" type="checkbox" name="selectalleasy" id="selectalleasy" />
 			</th>
-			<th class="wc-shipping-zone-name"><?php esc_html_e( 'Area name', 'woocommerce' ); ?></th>
+			<th class="wc-shipping-zone-name"><?php esc_html_e( 'Area name', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-zipcode"><?php esc_html_e( 'Ziocodes', 'easy' ); ?></th>
-			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'woocommerce' ); ?></th>
+			<th class="wc-shipping-zone-city"><?php esc_html_e( 'City name', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-state"><?php esc_html_e( 'State', 'easy' ); ?></th>
 			<th class="wc-shipping-zone-country"><?php esc_html_e( 'Country', 'easy' ); ?></th>
-			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'woocommerce' ); ?></th>
-			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'woocommerce' ); ?></th>
+			<th class="wc-shipping-zone-min"><?php esc_html_e( 'Min', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-max"><?php esc_html_e( 'Max', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-charge"><?php esc_html_e( 'Delivery Charge', 'easy' ); ?></th>
+			<th class="wc-shipping-zone-express"><?php esc_html_e( 'Express Delivery', 'easy' ); ?></th>
 		</tr>
 	</tfoot>
 </table>

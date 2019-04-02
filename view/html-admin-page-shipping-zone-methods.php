@@ -81,6 +81,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="number" data-attribute="min_amount" step="0.01" id="min_amount" name="min_amount" placeholder="Min Amount "  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->min_amount:''; ?>" class="wc-shipping-zone-region-select" />
 					<input type="number" data-attribute="max_amount" step="0.01" id="max_amount" name="max_amount" placeholder="Max Amount "  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->max_amount:''; ?>" class="wc-shipping-zone-region-select" />
 					<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->charge:''; ?>" class="wc-shipping-zone-region-select" />
+					<input type="checkbox" data-attribute="active_express" id="active_express" name="active_express" <?php echo ($_REQUEST['zone_id'] != 'new' && $exstZone->active_express == 1)?'checked':''; ?>  value="1" />
+					<input type="number" data-attribute="express_delivery" id="express_delivery" step="0.01" name="express_delivery" placeholder="Express Delivery"  value="<?php echo ($_REQUEST['zone_id'] != 'new')?$exstZone->express_delivery:''; ?>" class="wc-shipping-zone-region-select" />
 					</div>
 					<div class="addbuttons mt-1">
 						<?php if($_REQUEST['zone_id']): ?>
