@@ -19,6 +19,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<tbody>
 		<?php //if ( 0 !== $zone->get_id() ) : ?>
 			<tr valign="top" class="">
+				<th></th>
+				<td>
+					<label for="isExpress">
+						<input type="checkbox" name="isExpress" id="isExpress" class="checkbox">
+						<span><?php esc_html_e( 'Allow Express Delivery?', 'easy' ); ?></span>
+					</label>
+				</td>
+			</tr>
+			<tr valign="top" class="">
 				<th scope="row" class="titledesc">
 					<label for="zone_name">
 						<?php esc_html_e( 'Country Name', 'woocommerce' ); ?>
