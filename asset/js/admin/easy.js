@@ -446,4 +446,19 @@ jQuery(document).ready(function($){
 		jQuery(outputa).insertBefore(jQuery(this).closest('div.addbuttons'));
 	});
 
+	/*
+	* Express Delivery
+	*/
+	jQuery(document.body).on('change', 'input[name="isExpress"]', function(){
+		var expressHtml = '<span class="express_chargewrap"><input type="number" data-attribute="express_charge" id="express_charge" step="0.01" name="express_charge" placeholder="Express Charge" value="" class="wc-shipping-zone-region-select"></span>';
+		if(jQuery('input[name="isExpress"]').is(':checked')){
+			jQuery('.singleDeliverArea').append(expressHtml);
+		}else{
+			jQuery('.singleDeliverArea').find('.express_chargewrap').html('');
+		}
+		
+
+
+	});
+
 }); // End document ready

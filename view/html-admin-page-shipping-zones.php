@@ -94,9 +94,11 @@ foreach($continents as $sk){
 						<div class="form-group hidden">
 							<select name="state" class="form-control">';
 							$states = WC()->countries->get_states( $s_ship->country_name );
-							foreach($states as $k => $sState):
-								$output.= '<option value="'.$k.'">'.$sState.'</option>';
-							endforeach;
+							if(is_array($states) && count($states)){
+								foreach($states as $k => $sState):
+									$output.= '<option value="'.$k.'">'.$sState.'</option>';
+								endforeach;
+							}
 							$output .='</select>
 							<span class="savebutton"><span class="dashicons dashicons-yes"></span></span>
 						</div>
