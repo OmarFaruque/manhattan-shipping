@@ -106,14 +106,14 @@ jQuery(document).ready(function($){
 
 		$.ajax({
             type : 'post',
-            dataType: 'json',
+            dataType: 'html',
             data : formData,
             url : easyAjax,
             success:function(data){
-			//	console.log(data);
+				console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
-                	window.location.replace(easy.easy_page);
+                	//window.location.replace(easy.easy_page);
                 }
             }
         });
