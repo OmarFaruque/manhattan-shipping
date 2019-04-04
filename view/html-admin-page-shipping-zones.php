@@ -11,7 +11,11 @@ foreach($continents as $sk){
 } 
 
 ?>
-
+<?php 
+	echo '<pre>';
+	print_r($allships);
+	echo '</pre>';
+?>
 
 <h2 class="wc-shipping-zones-heading">
 	<?php _e( 'Shipping zones', 'easy' ); ?>

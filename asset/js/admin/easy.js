@@ -90,6 +90,8 @@ jQuery(document).ready(function($){
 				deliveryAreas[index]['min_amount'] = jQuery(this).find('input[name="min_amount"]').val();
 				deliveryAreas[index]['max_amount'] = jQuery(this).find('input[name="max_amount"]').val();
 				deliveryAreas[index]['charge'] = jQuery(this).find('input[name="delivery_charge"]').val();
+				deliveryAreas[index]['isexpress'] = jQuery(this).find('input[name="isexpress"]').val();
+				deliveryAreas[index]['express_charge'] = jQuery(this).find('input[name="express_charge"]').val();
 			});
 			var deliverJsonArray = JSON.stringify(deliveryAreas);
 			var formData = {
@@ -99,7 +101,7 @@ jQuery(document).ready(function($){
 				delivery_area: 	deliverJsonArray,
 				action: 		'saveEasyData'
 			};
-			//console.log(formData);
+			console.log(formData);
 		}
 
 		$.ajax({
@@ -441,17 +443,22 @@ jQuery(document).ready(function($){
 		+'<input type="text" data-attribute="delivery_zipcode" id="delivery_zipcode" name="zipcode" placeholder="000000, 000000"  value="" class="wc-shipping-zone-region-select" />'
 		+'<input type="number" data-attribute="min_amount" step="0.01" id="min_amount" name="min_amount" placeholder="Min Amount "  value="" class="wc-shipping-zone-region-select" />'
 		+'<input type="number" data-attribute="max_amount" step="0.01" id="max_amount" name="max_amount" placeholder="Max Amount "  value="" class="wc-shipping-zone-region-select" />'
-		+'<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="" class="wc-shipping-zone-region-select" />'
-		+'</div>';
+		+'<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="" class="wc-shipping-zone-region-select" />';
+		if(jQuery('input[name="isexpress"]').is(':checked')){
+			console.log('checked omm');
+			outputa+='<span class="express_chargewrap"><input type="number" data-attribute="express_delivery" id="express_delivery" step="0.01" name="express_delivery" placeholder="Express Delivery"  value="" class="wc-shipping-zone-region-select" /></span>';
+		}
+
+		outputa+='</div>';
 		jQuery(outputa).insertBefore(jQuery(this).closest('div.addbuttons'));
 	});
 
 	/*
 	* Express Delivery
 	*/
-	jQuery(document.body).on('change', 'input[name="isExpress"]', function(){
+	jQuery(document.body).on('change', 'input[name="isexpress"]', function(){
 		var expressHtml = '<span class="express_chargewrap"><input type="number" data-attribute="express_charge" id="express_charge" step="0.01" name="express_charge" placeholder="Express Charge" value="" class="wc-shipping-zone-region-select"></span>';
-		if(jQuery('input[name="isExpress"]').is(':checked')){
+		if(jQuery('input[name="isexpress"]').is(':checked')){
 			jQuery('.singleDeliverArea').append(expressHtml);
 		}else{
 			jQuery('.singleDeliverArea').find('.express_chargewrap').html('');

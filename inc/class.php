@@ -34,6 +34,8 @@ if (!class_exists('manhattan_shippingClass')) {
         }
     
         private function db(){
+
+            // $this->wpdb->query('DROP TABLE ' . $this->easy_shipping );
             if($this->wpdb->get_var("SHOW TABLES LIKE '$this->easy_shipping'") != $this->easy_shipping) {
                 //table not in database. Create new table
                 $charset_collate = $this->wpdb->get_charset_collate();
@@ -48,6 +50,8 @@ if (!class_exists('manhattan_shippingClass')) {
                      charge varchar(100) NOT NULL, 
                      active_express int(20) NOT NULL,
                      express_delivery varchar(100) NOT NULL,
+                     isexpress varchar(150) NOT NULL,
+                     express_delivery int(50) NOT NULL,
                      created_dt timestamp NOT NULL,
                      UNIQUE KEY id (id)
                 ) $charset_collate;";

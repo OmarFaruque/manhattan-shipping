@@ -200,8 +200,13 @@ table.wc-shipping-zone-settings .singleDeliverArea ul.ziplist li span.delete:hov
 .singleDeliverArea > input#delivery_zipcode {
   width: 20% !important;
 }
-.singleDeliverArea > input:not(#delivery_area):not(#delivery_zipcode){
-  width:15% !important;
+
+.singleDeliverArea input:not(#delivery_area):not(#delivery_zipcode):not(.checkbox){
+  width:10% !important;
+}
+.singleDeliverArea > input.checkbox {
+  width:auto !important;
+  margin-top:10px;
 }
 .singleDeliverArea > input {
   display: inline-block;
