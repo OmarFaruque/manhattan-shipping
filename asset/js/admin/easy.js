@@ -90,18 +90,19 @@ jQuery(document).ready(function($){
 				deliveryAreas[index]['min_amount'] = jQuery(this).find('input[name="min_amount"]').val();
 				deliveryAreas[index]['max_amount'] = jQuery(this).find('input[name="max_amount"]').val();
 				deliveryAreas[index]['charge'] = jQuery(this).find('input[name="delivery_charge"]').val();
-				deliveryAreas[index]['isexpress'] = jQuery(this).find('input[name="isexpress"]').val();
 				deliveryAreas[index]['express_charge'] = jQuery(this).find('input[name="express_charge"]').val();
 			});
 			var deliverJsonArray = JSON.stringify(deliveryAreas);
+			var isexpress = (jQuery('input[name="isexpress"]').is(':checked'))?1:0;
 			var formData = {
 				country_name: 	jQuery('select[name="country_name"]').val(),
 				state: 			jQuery('select[name="zone_locations"]').val(),
 				city: 			jQuery('input[name="city"]').val(),
+				isexpress: 		isexpress,
 				delivery_area: 	deliverJsonArray,
 				action: 		'saveEasyData'
 			};
-			console.log(formData);
+			//console.log(formData);
 		}
 
 		$.ajax({

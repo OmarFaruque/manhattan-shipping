@@ -15,6 +15,7 @@ if (!class_exists('manhattan_shippingClass')) {
         public $easy_shipping; 
         public $easy_ziptable; 
         public $postmeta; 
+        public $table_payent;
         public $posts;
         
     
@@ -34,12 +35,8 @@ if (!class_exists('manhattan_shippingClass')) {
         }
     
         public function db(){
-            
-            // $this->wpdb->query('DROP TABLE ' . $this->easy_shipping );
+        //$this->wpdb->query( "DROP TABLE IF EXISTS ".$this->wpdb->prefix."easy_shipping" );
             if($this->wpdb->get_var("SHOW TABLES LIKE '$this->easy_shipping'") != $this->easy_shipping) {
-                echo 'inside db if <pre>';
-                print_r($this->wpdb);
-                echo '</pre>';
                 //table not in database. Create new table
                 $charset_collate = $this->wpdb->get_charset_collate();
                 $sqlo = "CREATE TABLE $this->easy_shipping (
@@ -52,8 +49,6 @@ if (!class_exists('manhattan_shippingClass')) {
                      max_amount varchar(100) NOT NULL, 
                      charge varchar(100) NOT NULL, 
                      active_express int(20) NOT NULL,
-                     express_delivery varchar(100) NOT NULL,
-                     isexpress varchar(150) NOT NULL,
                      express_delivery int(20) NOT NULL,
                      created_dt timestamp NOT NULL,
                      UNIQUE KEY id (id)
@@ -81,13 +76,9 @@ if (!class_exists('manhattan_shippingClass')) {
 
 
         private function init(){
-            
-
             add_action( 'admin_enqueue_scripts', array($this, 'manhattan_shipping_backend_script') );
-
             add_action('wp_enqueue_scripts',array($this, 'manhattan_shipping_script') );
             /*Admin enque script*/
-
             add_action('wp_head', array($this, 'frontendmanhattan_shipping') );
 
 
@@ -283,6 +274,10 @@ if (!class_exists('manhattan_shippingClass')) {
         }
 
     function custom_shipping_costs( $rates, $package ) {
+
+        echo 'test array<pre>';
+        print_r($rates);
+        echo '</pre>';
     // New shipping cost (can be calculated)
     if(isset($_COOKIE['easy_area'])):
         $country    = $_COOKIE['easy_country'];
@@ -292,16 +287,16 @@ if (!class_exists('manhattan_shippingClass')) {
 
         $cartSubTotal = WC()->cart->subtotal;
 
-        $quryRate = $this->wpdb->get_row('SELECT `charge` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'" AND min_amount <= '.$cartSubTotal.' AND max_amount >= '.$cartSubTotal.'', OBJECT);
+        $quryRate = $this->wpdb->get_row('SELECT `charge`, `express_delivery` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'" AND min_amount <= '.$cartSubTotal.' AND max_amount >= '.$cartSubTotal.'', OBJECT);
 
 
     $new_cost = ($quryRate)?$quryRate->charge:00;
+    $express_cost = ($quryRate)?$quryRate->express_delivery:00;
     $tax_rate = 00;
 
     foreach( $rates as $rate_key => $rate ){
         // Excluding free shipping methods
         if( $rate->method_id == 'easy_shipping'){
-
             // Set rate cost
             $rates[$rate_key]->cost = $new_cost;
 
@@ -310,6 +305,18 @@ if (!class_exists('manhattan_shippingClass')) {
             foreach ($rates[$rate_key]->taxes as $key => $tax){
                 if( $rates[$rate_key]->taxes[$key] > 0 )
                     $taxes[$key] = $new_cost * $tax_rate;
+            }
+            $rates[$rate_key]->taxes = $taxes;
+
+        }elseif($rate->method_id == 'express_delivery'){
+            // Set rate cost
+            $rates[$rate_key]->cost = $express_cost;
+
+            // Set taxes rate cost (if enabled)
+            $taxes = array();
+            foreach ($rates[$rate_key]->taxes as $key => $tax){
+                if( $rates[$rate_key]->taxes[$key] > 0 )
+                    $taxes[$key] = $express_cost * $tax_rate;
             }
             $rates[$rate_key]->taxes = $taxes;
 
@@ -326,12 +333,13 @@ if (!class_exists('manhattan_shippingClass')) {
     * Show free delivery text if shipping value 0
     */
     function changeShippingLabe($label, $method){
-         if(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'easy_shipping'):
-            $country    = $_COOKIE['easy_country'];
+
+        $country    = $_COOKIE['easy_country'];
             $state      = $_COOKIE['easy_state'];
             $city       = $_COOKIE['easy_city'];
             $area       = $_COOKIE['easy_area'];
-    
+
+         if(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'easy_shipping'):
             $cartSubTotal = WC()->cart->subtotal;
 
             $quryRate = $this->wpdb->get_row('SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"', OBJECT);
@@ -347,9 +355,12 @@ if (!class_exists('manhattan_shippingClass')) {
                 $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
             endif;
             return $label;
-            else:
+        // elseif(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'express_delivery'):
+        //         $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
+        //         return $label;
+        else:
                 return $label;
-            endif;
+        endif;
     }
 
         /*
@@ -533,11 +544,14 @@ if (!class_exists('manhattan_shippingClass')) {
                                  'min_amount' => $sD->min_amount, 
                                  'max_amount' => $sD->max_amount, 
                                  'charge' => $sD->charge, 
+                                 'express_delivery' => $sD->express_charge,
+                                 'active_express' => $data['isexpress']
                             ),
-                            array('%s', '%s', '%s', '%s', '%s', '%s', '%s')                
+                            array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d')                
                         );
 
-                        echo 'insert: ' . $insert . '<br/>';
+                        //echo 'last query: ' . $this->wpdb->last_query;
+
                     }
                 if($insert){
                     if($sD->zipcode != ''){
@@ -829,9 +843,7 @@ if (!class_exists('manhattan_shippingClass')) {
                 }elseif($lPriceSales == '' && $lPrice != ''){
                     $cart_item['data']->set_price( $lPrice ); // WC 3.0+    
                 }    
-                
-                    
-                
+                   
             }
          }
 

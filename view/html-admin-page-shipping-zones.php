@@ -56,6 +56,7 @@ foreach($continents as $sk){
 		<?php 
 		$output ='';
 		foreach($allships as $s_ship){
+			$expressActive = ($s_ship->active_express == 1)?'checked':'';
 			$allzip = $this->getareaZipCodes($s_ship->id);
 			$zopcodes = implode(', ', $allzip);
 			$output .= '<tr data-id="'.$s_ship->id.'">';
@@ -152,10 +153,11 @@ foreach($continents as $sk){
 						</div>
 			</td>';
 			
-			//Express Delivery							
+			//Express Delivery		
+
 			$output .= '<td class="wc-shipping-express">
 			<span class="activeExpressDelivery">
-					<input name="active_express" type="checkbox" value="1" />
+					<input name="active_express" '.$expressActive.' type="checkbox" value="1" />
 			</span>
 			<span class="data">'.get_woocommerce_currency_symbol().$s_ship->express_delivery.'</span>
 						<div class="row-actions">

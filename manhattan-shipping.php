@@ -48,3 +48,4 @@ function easy_shippingLoadClass() {
 
 /* New Shipping */
 require_once SHIPPINGDIR.'inc/easy-shipping.php';
+require_once SHIPPINGDIR.'inc/express-shipping.php';
