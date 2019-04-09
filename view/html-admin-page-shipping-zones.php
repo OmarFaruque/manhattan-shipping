@@ -11,17 +11,15 @@ foreach($continents as $sk){
 } 
 
 ?>
-<?php 
-	echo '<pre>';
-	print_r($allships);
-	echo '</pre>';
-?>
+
 
 <h2 class="wc-shipping-zones-heading">
 	<?php _e( 'Shipping zones', 'easy' ); ?>
-	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&zone_id=new' ); ?>" class="page-title-action"><?php esc_html_e( 'Add shipping zone', 'woocommerce' ); ?></a>
+	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&zone_id=new' ); ?>" class="page-title-action"><?php esc_html_e( 'Add shipping zone', 'easy' ); ?></a>
 
-	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&easy-settings=1' ); ?>" class="page-title-action"><?php esc_html_e( 'Settings', 'woocommerce' ); ?></a>
+	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&easy-settings=1' ); ?>" class="page-title-action"><?php esc_html_e( 'Settings', 'easy' ); ?></a>
+
+	<a href="<?php echo admin_url( 'admin.php?page=wc-settings&tab=easy_shipping&express-settings=1' ); ?>" class="page-title-action"><?php esc_html_e( 'Time Slot', 'easy' ); ?></a>
 </h2>
 <p><?php echo __( 'A shipping zone is a geographic region where a certain set of shipping methods are offered.', 'woocommerce' ) . ' ' . __( 'WooCommerce will match a customer to a single zone using their shipping address and present the shipping methods within that zone to them.', 'woocommerce' ); ?></p>
 

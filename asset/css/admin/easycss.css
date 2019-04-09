@@ -225,3 +225,9 @@ span.savebutton {
 span.savebutton:hover{
   background-color: gray;
 }
+p.addTimeSlot span {
+  cursor: pointer;
+}
+input[name="order_limit"] {
+  max-width: 100%;
+}

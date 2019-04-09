@@ -16,6 +16,7 @@ if (!class_exists('manhattan_shippingClass')) {
         public $easy_ziptable; 
         public $postmeta; 
         public $table_payent;
+        public $table_slot;
         public $posts;
         
     
@@ -29,6 +30,7 @@ if (!class_exists('manhattan_shippingClass')) {
             $this->easy_shipping            = $this->wpdb->prefix . 'easy_shipping';
             $this->postmeta                 = $this->wpdb->prefix . 'postmeta';
             $this->posts                    = $this->wpdb->prefix . 'posts';
+            $this->table_slot               = $this->wpdb->prefix . 'table_slot';
          
             $this->init();
             $this->db();
@@ -36,6 +38,25 @@ if (!class_exists('manhattan_shippingClass')) {
     
         public function db(){
         //$this->wpdb->query( "DROP TABLE IF EXISTS ".$this->wpdb->prefix."easy_shipping" );
+            
+        
+        if($this->wpdb->get_var("SHOW TABLES LIKE '$this->table_slot'") != $this->table_slot) {
+            //table not in database. Create new table
+            $charset_collate = $this->wpdb->get_charset_collate();
+            $sqlo = "CREATE TABLE $this->table_slot (
+                 id int(20) NOT NULL AUTO_INCREMENT,
+                 slot_date date NOT NULL,
+                 s_time datetime NOT NULL,
+                 e_date datetime NOT NULL,
+                 order_limit int(200) NOT NULL,
+                 created_dt timestamp NOT NULL,
+                 UNIQUE KEY id (id)
+            ) $charset_collate;";
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            dbDelta( $sqlo );
+        }
+        
+        
             if($this->wpdb->get_var("SHOW TABLES LIKE '$this->easy_shipping'") != $this->easy_shipping) {
                 //table not in database. Create new table
                 $charset_collate = $this->wpdb->get_charset_collate();
@@ -275,9 +296,9 @@ if (!class_exists('manhattan_shippingClass')) {
 
     function custom_shipping_costs( $rates, $package ) {
 
-        echo 'test array<pre>';
-        print_r($rates);
-        echo '</pre>';
+        // echo 'test array<pre>';
+        // print_r($rates);
+        // echo '</pre>';
     // New shipping cost (can be calculated)
     if(isset($_COOKIE['easy_area'])):
         $country    = $_COOKIE['easy_country'];
@@ -355,9 +376,10 @@ if (!class_exists('manhattan_shippingClass')) {
                 $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
             endif;
             return $label;
-        // elseif(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'express_delivery'):
-        //         $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
-        //         return $label;
+        elseif(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'express_delivery'):
+                $label = $method->get_label() . ' : ' . wc_price($method->cost) . '<span class="easysippingNote">'. get_option( 'express_note', '' ) . '</span>';
+                // echo get_option( 'express_note', '' );
+                return $label;
         else:
                 return $label;
         endif;
@@ -374,11 +396,17 @@ if (!class_exists('manhattan_shippingClass')) {
             elseif(isset($_REQUEST['easy-settings'])){
                 $this->eassyShippingSettings();
             }
+            elseif(isset($_REQUEST['express-settings'])){
+                $this->expressShippingSettings();
+            }
             else{
                 $this->shippingList();
             }
         } //End function settings_tab()
 
+        protected function expressShippingSettings(){
+            require_once($this->plugin_dir . '/view/express-shipping-settings.php');
+        }
 
         protected function eassyShippingSettings(){
             global $hide_save_button;

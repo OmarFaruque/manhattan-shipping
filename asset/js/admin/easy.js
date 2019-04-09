@@ -263,16 +263,18 @@ jQuery(document).ready(function($){
 	$(document.body).on('click', 'button#easy_settings_save', function(e){
 		e.preventDefault();
 		$(".woocommerce table.form-table").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
-		var v_popup2 	= ($('input[name="v_popup2"]').is(':checked'))?'yes':'no';
-		var v_country 	= ($('input[name="v_country"]').is(':checked'))?'yes':'no';
-		var v_state 	= ($('input[name="v_state"]').is(':checked'))?'yes':'no';
-		var v_city 		= ($('input[name="v_city"]').is(':checked'))?'yes':'no';
+		var v_popup2 		= ($('input[name="v_popup2"]').is(':checked'))?'yes':'no';
+		var v_country 		= ($('input[name="v_country"]').is(':checked'))?'yes':'no';
+		var v_state 		= ($('input[name="v_state"]').is(':checked'))?'yes':'no';
+		var v_city 			= ($('input[name="v_city"]').is(':checked'))?'yes':'no';
+		var express_note 	= $('input[name="express_note"]').val();
 
 		var fromData = {
 			v_popup2:v_popup2,
 			v_country:v_country,
 			v_state:v_state,
 			v_city:v_city,
+			express_note: express_note,
 			action:'updateEasySettings'
 		};
 		$.ajax({
@@ -464,9 +466,20 @@ jQuery(document).ready(function($){
 		}else{
 			jQuery('.singleDeliverArea').find('.express_chargewrap').html('');
 		}
-		
+	});
 
 
+	// Add time slot 
+	jQuery(document.body).on('click', 'p.addTimeSlot span', function(){
+		var html = '<tr>'
+			+'<td><input type="date" name=date" class="form-control" /></td>'
+			+'<td><input type="time" name=s_time" class="form-control" /></td>'
+			+'<td><input type="time" name=e_time" class="form-control" /></td>'
+			+'<td><input type="number" name=order_limit" class="form-control" /></td>'
+			+'<td class="delete"><span class="dashicons dashicons-dismiss"></span></td>'
+		+'</tr>';
+
+		jQuery(html).insertBefore(jQuery(this).closest('tr'));
 	});
 
 }); // End document ready

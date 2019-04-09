@@ -45,14 +45,14 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
          * @param mixed $package
          * @return void
          */
-        public function calculate_shipping( $package ) {
-          $rate = array(
-            'id' => $this->id,
-            'label' => $this->title
-          );
-          // Register the rate
-          $this->add_rate( $rate );
-        }
+        // public function calculate_shipping( $package ) {
+        //   $rate = array(
+        //     'id' => $this->id,
+        //     'label' => $this->title
+        //   );
+        //   // Register the rate
+        //   $this->add_rate( $rate );
+        // }
 
         public function is_available( $package ){
          

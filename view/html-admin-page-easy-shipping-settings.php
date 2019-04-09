@@ -62,8 +62,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<tr valign="top" class="">
 				<th scope="row" class="titledesc">
 					<label for="zone_city">
-						<?php esc_html_e( 'City', 'woocommerce' ); ?>
-						<?php echo wc_help_tip( __( 'These are regions inside this zone. Customers will be matched against these regions.', 'woocommerce' ) ); // @codingStandardsIgnoreLine ?>
+						<?php esc_html_e( 'City', 'easy' ); ?>
+						<?php echo wc_help_tip( __( 'These are regions inside this zone. Customers will be matched against these regions.', 'easy' ) ); // @codingStandardsIgnoreLine ?>
 					</label>
 				</th>
 				<td class="forminp">
@@ -71,6 +71,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 					  <input type="checkbox" name="v_city" <?php echo (get_option( 'v_city', 'yes' ) == 'yes')?'checked="checked"':'';?>>
 					  <span class="slider round"></span>
 					</label>
+				</td>			
+		</tr>
+		<tr valign="top" class="">
+				<th scope="row" class="titledesc">
+					<label for="express_note">
+						<?php esc_html_e( 'Express Delivery Note', 'easy' ); ?>
+						<?php echo wc_help_tip( __( 'Express Delivery or Same day deliery note on cart page.', 'easy' ) ); // @codingStandardsIgnoreLine ?>
+					</label>
+				</th>
+				<td class="forminp">
+					<input type="text" style="width:100%;" name="express_note" id="express_note" value="<?php echo get_option( 'express_note', '' ); ?>" class="form-control">
 				</td>			
 		</tr>
 	</tbody>
