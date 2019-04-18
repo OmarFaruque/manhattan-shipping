@@ -1403,12 +1403,16 @@ if (!class_exists('manhattan_shippingClass')) {
    function getTimeForSelectedDate(){
     $date = date('Y-m-d', strtotime($_POST['selectedDate']));
 
-    $qtimes = $this->wpdb->get_row();
+    $qtimes = $this->wpdb->get_row('SELECT * FROM '.$this->table_slot.' WHERE `slot_date`="'.$date.'"', OBJECT);
     echo json_encode(
         array(
             'msg' => 'success',
-            'post' => $_POST
-
+            'post' => $_POST,
+            'date' => $date,
+            'qry' => $qtimes,
+            's_time' => date('h:i a', strtotime($qtimes->s_time)),
+            'e_time' => date('h:i a', strtotime($qtimes->e_time)),
+            'cut_off' => date('h:i a', strtotime($qtimes->cut_off))
         )
     );
     die();
