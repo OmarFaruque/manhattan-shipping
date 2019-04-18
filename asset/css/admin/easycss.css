@@ -231,3 +231,25 @@ p.addTimeSlot span {
 input[name="order_limit"] {
   max-width: 100%;
 }
+input.form-control {
+  max-width: 100%;
+}
+table#expressTable th {
+  padding-left: 10px;
+}
+table#expressTable tr:nth-child(odd) {
+  background-color: #e8e7e7;
+}
+table#expressTable tr:nth-child(even) {
+  background-color: #fff;
+}
+td.delete span {
+  cursor: pointer;
+}
+td.delete span:hover {
+  color: #cb0303;
+  transition: all 0.5s ease 0s;
+  -o-transition: all 0.5s ease 0s;
+  -webkit-transition: all 0.5s ease 0s;
+  -moz-transition: all 0.5s ease 0s;
+}

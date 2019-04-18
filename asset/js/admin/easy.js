@@ -448,7 +448,7 @@ jQuery(document).ready(function($){
 		+'<input type="number" data-attribute="max_amount" step="0.01" id="max_amount" name="max_amount" placeholder="Max Amount "  value="" class="wc-shipping-zone-region-select" />'
 		+'<input type="number" data-attribute="delivery_charge" id="delivery_charge" step="0.01" name="delivery_charge" placeholder="Delivery Charge"  value="" class="wc-shipping-zone-region-select" />';
 		if(jQuery('input[name="isexpress"]').is(':checked')){
-			console.log('checked omm');
+			// console.log('checked omm');
 			outputa+='<span class="express_chargewrap"><input type="number" data-attribute="express_delivery" id="express_delivery" step="0.01" name="express_delivery" placeholder="Express Delivery"  value="" class="wc-shipping-zone-region-select" /></span>';
 		}
 
@@ -472,14 +472,40 @@ jQuery(document).ready(function($){
 	// Add time slot 
 	jQuery(document.body).on('click', 'p.addTimeSlot span', function(){
 		var html = '<tr>'
-			+'<td><input type="date" name=date" class="form-control" /></td>'
-			+'<td><input type="time" name=s_time" class="form-control" /></td>'
-			+'<td><input type="time" name=e_time" class="form-control" /></td>'
-			+'<td><input type="number" name=order_limit" class="form-control" /></td>'
+			+'<td><input type="date" name="slot_date[]" class="form-control" /></td>'
+			+'<td><input type="time" name="s_time[]" class="form-control" /></td>'
+			+'<td><input type="time" name="e_time[]" class="form-control" /></td>'
+			+'<td><input type="time" name="cut_off[]" class="form-control" /></td>'
+			+'<td><input type="number" name="order_limit[]" class="form-control" /></td>'
 			+'<td class="delete"><span class="dashicons dashicons-dismiss"></span></td>'
 		+'</tr>';
 
 		jQuery(html).insertBefore(jQuery(this).closest('tr'));
+	});
+
+	// Delete Slot 
+	jQuery(document.body).on('click', 'td.delete span', function(){
+		var id = jQuery(this).closest('td').data('id');
+		var tr = jQuery(this).closest('tr');
+
+		$("table#expressTable").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
+
+		var fromData = {
+			id:id,
+			action:'deleteNormalSlot'
+		};
+		$.ajax({
+            type : 'post',
+            dataType: 'json',
+            data : fromData,
+            url : easyAjax,
+            success:function(data){
+                if(data.msg == 'success'){
+					$("table#expressTable").unblock();
+					tr.remove();
+                }
+            }
+        });
 	});
 
 }); // End document ready

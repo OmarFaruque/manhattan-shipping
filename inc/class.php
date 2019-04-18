@@ -37,7 +37,7 @@ if (!class_exists('manhattan_shippingClass')) {
         }
     
         public function db(){
-        //$this->wpdb->query( "DROP TABLE IF EXISTS ".$this->wpdb->prefix."easy_shipping" );
+        // $this->wpdb->query( "DROP TABLE IF EXISTS ".$this->wpdb->prefix."table_slot" );
             
         
         if($this->wpdb->get_var("SHOW TABLES LIKE '$this->table_slot'") != $this->table_slot) {
@@ -46,8 +46,9 @@ if (!class_exists('manhattan_shippingClass')) {
             $sqlo = "CREATE TABLE $this->table_slot (
                  id int(20) NOT NULL AUTO_INCREMENT,
                  slot_date date NOT NULL,
-                 s_time datetime NOT NULL,
-                 e_date datetime NOT NULL,
+                 s_time time NOT NULL,
+                 e_time time NOT NULL,
+                 cut_off time NOT NULL,
                  order_limit int(200) NOT NULL,
                  created_dt timestamp NOT NULL,
                  UNIQUE KEY id (id)
@@ -100,7 +101,7 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action( 'admin_enqueue_scripts', array($this, 'manhattan_shipping_backend_script') );
             add_action('wp_enqueue_scripts',array($this, 'manhattan_shipping_script') );
             /*Admin enque script*/
-            add_action('wp_head', array($this, 'frontendmanhattan_shipping') );
+            add_action('wp_head', array($this, 'frontendmanhattan_shipping'), 999 );
 
 
             add_filter( 'woocommerce_settings_tabs_array', array($this, 'add_settings_tab'), 50 );
@@ -233,6 +234,17 @@ if (!class_exists('manhattan_shippingClass')) {
 
             // Change Woocommerce Template path to from this plugin
             add_filter( 'woocommerce_locate_template', array($this, 'woo_easy_plugin_template'), 1, 3 );
+
+            // Delete express slot
+            add_action('wp_ajax_nopriv_deleteNormalSlot', array($this, 'deleteNormalSlot'));
+            add_action( 'wp_ajax_deleteNormalSlot', array($this, 'deleteNormalSlot') );
+            
+            // Get time slot for Specific date
+            add_action('wp_ajax_nopriv_getTimeForSelectedDate', array($this, 'getTimeForSelectedDate'));
+            add_action( 'wp_ajax_getTimeForSelectedDate', array($this, 'getTimeForSelectedDate') );
+            
+
+
             
             endif;
 
@@ -396,7 +408,7 @@ if (!class_exists('manhattan_shippingClass')) {
             elseif(isset($_REQUEST['easy-settings'])){
                 $this->eassyShippingSettings();
             }
-            elseif(isset($_REQUEST['express-settings'])){
+            elseif(isset($_REQUEST['normal-settings'])){
                 $this->expressShippingSettings();
             }
             else{
@@ -405,7 +417,33 @@ if (!class_exists('manhattan_shippingClass')) {
         } //End function settings_tab()
 
         protected function expressShippingSettings(){
-            require_once($this->plugin_dir . '/view/express-shipping-settings.php');
+            global $hide_save_button;
+            $hide_save_button = true;
+
+            if(isset($_POST['express_save'])){
+                foreach($_POST['slot_date'] as $k => $s_slot){
+                    $date = date('Y-m-d', strtotime($s_slot));
+                    $s_time = date('H:i:s', strtotime($_POST['s_time'][$k]));
+                    $e_time = date('H:i:s', strtotime($_POST['e_time'][$k]));
+                    $cut_off = date('H:i:s', strtotime($_POST['cut_off'][$k]));
+                    
+                    $insert = $this->wpdb->insert(
+                        $this->table_slot, 
+                        array(
+                            'slot_date' => $date,
+                            's_time' => $s_time,
+                            'e_time' => $e_time,
+                            'cut_off' => $cut_off,
+                            'order_limit' => $_POST['order_limit'][$k]
+                        ),
+                        array(
+                            '%s', '%s', '%s', '%s', '%d'
+                        )
+                    );
+                }
+            }
+            
+            require_once($this->plugin_dir . '/view/normal-shipping-settings.php');
         }
 
         protected function eassyShippingSettings(){
@@ -481,16 +519,22 @@ if (!class_exists('manhattan_shippingClass')) {
         * Voteing font Script
         */ 
         function manhattan_shipping_script(){
+            $slots = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJECT);
             wp_enqueue_style( 'jquerycss', $this->plugin_url . 'asset/jqueryui/jquery-ui.min.css', array(), true, 'all' );
             wp_enqueue_style( 'select2css', $this->plugin_url . 'asset/select2/css/select2.min.css', array(), true, 'all' );
+            
+            wp_enqueue_style( 'manhattan_shipping-timecss', $this->plugin_url . 'asset/css/jquery.timepicker.min.css', array(), true, 'all' );
             wp_enqueue_style( 'manhattan_shipping-bacCSS', $this->plugin_url . 'asset/css/easy-shipping.css', array(), true, 'all' );
-
+            
+            
             wp_enqueue_script( 'jqueryui', $this->plugin_url . 'asset/jqueryui/jquery-ui.min.js', array(), '9.0.0', true );
             wp_enqueue_script( 'select2', $this->plugin_url . 'asset/select2/js/select2.min.js', array(), '9.0.1', true );
+            
+            
+            wp_enqueue_script( 'jquery-ui-time-addon', $this->plugin_url . 'asset/js/jquery.timepicker.min.js', array(), '1.3.5', true );
             wp_enqueue_script( 'easyshippingjs', $this->plugin_url . 'asset/js/easyshippingjs.min.js', array('jquery', 'select2'), '9.0.2', true );
             wp_localize_script( 'easyshippingjs', 'easyAjax', admin_url( 'admin-ajax.php' ));
-
-
+            wp_localize_script( 'easyshippingjs', 'slots', $slots );
         }
      
 
@@ -1021,6 +1065,24 @@ if (!class_exists('manhattan_shippingClass')) {
             'default' => $_COOKIE['easy_area'],
             'custom_attributes' => array('readonly' => true)
         );
+
+        $fields['date_slot'] = array(
+            'label' => __('Date', 'easy'), // Add custom field label
+            'required' => true, // if field is required or not
+            'clear' => false, // add clear or not
+            'type' => 'text', // add field type
+            'class' => array('datepicker_date_slot'),    // add class name
+            'custom_attributes' => array()
+        );
+
+        $fields['time_slot'] = array(
+            'label' => __('Time', 'easy'), // Add custom field label
+            'required' => true, // if field is required or not
+            'clear' => false, // add clear or not
+            'type' => 'text', // add field type
+            'class' => array('datepicker_time_slot'),    // add class name
+            'custom_attributes' => array()
+        );
         
         $fields['shipping_state']['custom_attributes'] = array('readonly' => true, 'disabled' => true);
         $fields['shipping_city']['custom_attributes'] = array('readonly' => true);
@@ -1316,6 +1378,40 @@ if (!class_exists('manhattan_shippingClass')) {
        $template = $_template;
    
       return $template;
+   } // End woo_easy_plugin_template() 
+
+
+
+   function deleteNormalSlot(){
+       $id = $_POST['id'];
+       $delete = $this->wpdb->delete(
+           $this->table_slot,
+           array('id'=>$id),
+           array('%d')
+       );
+       $msg = ($delete)?'success':'fail';
+
+        echo json_encode(
+            array(
+                'msg' => $msg
+            )
+        );
+       die();
+   }
+
+
+   function getTimeForSelectedDate(){
+    $date = date('Y-m-d', strtotime($_POST['selectedDate']));
+
+    $qtimes = $this->wpdb->get_row();
+    echo json_encode(
+        array(
+            'msg' => 'success',
+            'post' => $_POST
+
+        )
+    );
+    die();
    }
 
     } // End Class

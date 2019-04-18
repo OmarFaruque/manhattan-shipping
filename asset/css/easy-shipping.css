@@ -181,3 +181,11 @@ select::-ms-expand {
 input.desabled {
     background-color: #efefef;
 }
+.glyphicon
+{
+    font-family: 'simple-line-icons' !important;
+}
+.ui-timepicker-container.ui-timepicker-standard
+{
+    z-index: 1 !important;
+}
