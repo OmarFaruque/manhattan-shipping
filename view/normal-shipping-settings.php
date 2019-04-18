@@ -17,7 +17,7 @@ $expreses = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJE
 ?>
 <h2>
 	<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-settings&tab=easy_shipping' ) ); ?>"><?php esc_html_e( 'Shipping zones', 'easy' ); ?></a> &gt;
-	<span class="wc-shipping-zone-name"><?php _e('Express Settings', 'easy'); ?></span>
+	<span class="wc-shipping-zone-name"><?php _e('Normal Delivery Settings', 'easy'); ?></span>
 </h2>
 <?php do_action( 'woocommerce_shipping_zone_before_methods_table' ); ?>
 
