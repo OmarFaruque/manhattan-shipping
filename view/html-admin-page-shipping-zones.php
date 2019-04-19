@@ -155,7 +155,7 @@ foreach($continents as $sk){
 
 			$output .= '<td class="wc-shipping-express">
 			<span class="activeExpressDelivery">
-					<input name="active_express" '.$expressActive.' type="checkbox" value="1" />
+					<input class="active_express" name="active_express" '.$expressActive.' type="checkbox" value="1" />
 			</span>
 			<span class="data">'.get_woocommerce_currency_symbol().$s_ship->express_delivery.'</span>
 						<div class="row-actions">

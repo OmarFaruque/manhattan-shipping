@@ -32,14 +32,25 @@ jQuery(document).ready(function($){
 		jQuery(this).closest('td').find('.form-group').removeClass('hidden');
 	});
 
-	jQuery(document.body).on('click', 'span.savebutton', function(){
+	jQuery(document.body).on('click', 'span.savebutton, input[name="active_express"]', function(){
 		$("table.wc-shipping-zones").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
 		var id = jQuery(this).closest('tr').data('id'),
-		name = jQuery(this).closest('td').find('input').attr('name'),
-		value = jQuery(this).closest('td').find('input').val(),
 		thisItem = jQuery(this).closest('td');
-		if(typeof name == 'undefined') name = jQuery(this).closest('td').find('select').attr('name');
-		if(typeof value == 'undefined') value = jQuery(this).closest('td').find('select').val();
+
+		if(!thisItem.hasClass('wc-shipping-express')){
+			var name = jQuery(this).closest('td').find('input').attr('name'),
+			value = jQuery(this).closest('td').find('input').val();
+			if(typeof name == 'undefined') name = jQuery(this).closest('td').find('select').attr('name');
+			if(typeof value == 'undefined') value = jQuery(this).closest('td').find('select').val();
+		}else{
+			var name = jQuery(this).closest('.form-group').find('input').attr('name'),
+			value = jQuery(this).closest('.form-group').find('input').val();
+		}
+
+		if(jQuery(this).hasClass('active_express')){
+			var name = jQuery(this).attr('name'),
+			value = (jQuery(this).is(':checked'))?1:0;	
+		}
 
 		jQuery.ajax({
             type : 'post',
