@@ -14,7 +14,7 @@ jQuery(document).ready(function($){
             },
             url : easyAjax,
             success:function(data){
-            	console.log(data);
+            	// console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
                 	$.each(data.state, function(k,v){
@@ -51,7 +51,6 @@ jQuery(document).ready(function($){
 			var name = jQuery(this).attr('name'),
 			value = (jQuery(this).is(':checked'))?1:0;	
 		}
-
 		jQuery.ajax({
             type : 'post',
             dataType: 'json',
@@ -279,12 +278,14 @@ jQuery(document).ready(function($){
 		var v_state 		= ($('input[name="v_state"]').is(':checked'))?'yes':'no';
 		var v_city 			= ($('input[name="v_city"]').is(':checked'))?'yes':'no';
 		var express_note 	= $('input[name="express_note"]').val();
+		var cut_off_time 	= $('input[name="cut_off_time"]').val();
 
 		var fromData = {
 			v_popup2:v_popup2,
 			v_country:v_country,
 			v_state:v_state,
 			v_city:v_city,
+			cut_off_time:cut_off_time,
 			express_note: express_note,
 			action:'updateEasySettings'
 		};
@@ -480,19 +481,80 @@ jQuery(document).ready(function($){
 	});
 
 
+
+
+	jQuery(document.body).on('change', 'input[name="slot_date[]"]', function(){
+		var date = jQuery(this).val();
+		console.log(date);
+	});
+
 	// Add time slot 
 	jQuery(document.body).on('click', 'p.addTimeSlot span', function(){
+
+		var citys = '';
+		$.each(JSON.parse(easyVer), function(k, v){
+			console.log(v.city);
+			citys +='<option value="'+v.id+'">'+v.city+'</option>';
+		});
+		
+
 		var html = '<tr>'
+			+'<td>'
+			+'<select name="city[]" class="form-control">'+citys+'</select>'
+			+'</td>'
 			+'<td><input type="date" name="slot_date[]" class="form-control" /></td>'
 			+'<td><input type="time" name="s_time[]" class="form-control" /></td>'
 			+'<td><input type="time" name="e_time[]" class="form-control" /></td>'
-			+'<td><input type="time" name="cut_off[]" class="form-control" /></td>'
+			+'<td><input type="text" name="cut_off[]" class="form-control datetimepicker" /></td>'
 			+'<td><input type="number" name="order_limit[]" class="form-control" /></td>'
 			+'<td class="delete"><span class="dashicons dashicons-dismiss"></span></td>'
 		+'</tr>';
 
 		jQuery(html).insertBefore(jQuery(this).closest('tr'));
+		jQuery.datetimepicker.setLocale('en');
+		var datetimepicker =  jQuery('.datetimepicker').datetimepicker({
+			timepicker:true,
+			format:'MM/DD/YYYY HH:mm:ss',
+			formatTime:'h:mm a',
+			formatDate:'MM.DD.YYYY',
+			// minDate: getFormattedDate(new Date())
+			// minDate:'-1970/01/02',//yesterday is minimum date(for today use 0 or -1970/01/01)
+			// maxDate:'+1970/01/02'//tomorrow is maximum date calendar
+		});
+
+
+	        
+
+
+		$.datetimepicker.setDateFormatter({
+		parseDate: function (date, format) {
+			var d = moment(date, format);
+			return d.isValid() ? d.toDate() : false;
+		},
+		
+		formatDate: function (date, format) {
+			return moment(date).format(format);
+		}
 	});
+
+	});
+
+	
+
+
+	// jQuery('.datetimepicker').datetimepicker({
+	// 	timepicker:true,
+	// 	formatTime:'h:mm a',
+	// 	formatDate:'DD.MM.YYYY'
+	// 	// minDate:'-1970/01/02',//yesterday is minimum date(for today use 0 or -1970/01/01)
+	// 	// maxDate:'+1970/01/02'//tomorrow is maximum date calendar
+	// });
+
+	
+
+
+
+
 
 	// Delete Slot 
 	jQuery(document.body).on('click', 'td.delete span', function(){
@@ -500,7 +562,6 @@ jQuery(document).ready(function($){
 		var tr = jQuery(this).closest('tr');
 
 		$("table#expressTable").block({message:null,overlayCSS:{background:"#fff",opacity:.6}});
-
 		var fromData = {
 			id:id,
 			action:'deleteNormalSlot'
@@ -518,5 +579,11 @@ jQuery(document).ready(function($){
             }
         });
 	});
-
 }); // End document ready
+
+function getFormattedDate(date) {
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear().toString().slice(2);
+    return day + '-' + month + '-' + year;
+}

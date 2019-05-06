@@ -8,6 +8,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+$cutofftime = get_option('cut_off_time');
+
 ?>
 <h2>
 	<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-settings&tab=easy_shipping' ) ); ?>"><?php esc_html_e( 'Shipping zones', 'easy' ); ?></a> &gt;
@@ -84,6 +86,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="text" style="width:100%;" name="express_note" id="express_note" value="<?php echo get_option( 'express_note', '' ); ?>" class="form-control">
 				</td>			
 		</tr>
+
+		<tr valign="top" class="">
+				<th scope="row" class="titledesc">
+					<label for="express_note">
+						<?php esc_html_e( 'Cut off time', 'easy' ); ?>
+						<?php echo wc_help_tip( __( 'Express Delivery cut off time.', 'easy' ) ); // @codingStandardsIgnoreLine ?>
+					</label>
+				</th>
+				<td class="forminp">
+					<input type="time" name="cut_off_time" id="cut_off_time" value="<?php echo get_option( 'cut_off_time', '' ); ?>" class="form-control">
+				</td>			
+		</tr>
+
+
 	</tbody>
 </table>
 <br>

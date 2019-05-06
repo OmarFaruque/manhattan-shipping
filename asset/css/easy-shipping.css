@@ -189,3 +189,6 @@ input.desabled {
 {
     z-index: 1 !important;
 }
+span.deliveryCharge span {
+    margin: 0 !important;
+}

@@ -37,7 +37,7 @@ if (!class_exists('manhattan_shippingClass')) {
         }
     
         public function db(){
-        // $this->wpdb->query( "DROP TABLE IF EXISTS ".$this->wpdb->prefix."table_slot" );
+        //$this->wpdb->query( "DROP TABLE IF EXISTS ".$this->wpdb->prefix."table_slot" );
             
         
         if($this->wpdb->get_var("SHOW TABLES LIKE '$this->table_slot'") != $this->table_slot) {
@@ -45,10 +45,11 @@ if (!class_exists('manhattan_shippingClass')) {
             $charset_collate = $this->wpdb->get_charset_collate();
             $sqlo = "CREATE TABLE $this->table_slot (
                  id int(20) NOT NULL AUTO_INCREMENT,
+                 city varchar(200) NOT NULL,
                  slot_date date NOT NULL,
                  s_time time NOT NULL,
                  e_time time NOT NULL,
-                 cut_off time NOT NULL,
+                 cut_off datetime NOT NULL,
                  order_limit int(200) NOT NULL,
                  created_dt timestamp NOT NULL,
                  UNIQUE KEY id (id)
@@ -70,8 +71,8 @@ if (!class_exists('manhattan_shippingClass')) {
                      min_amount varchar(100) NOT NULL, 
                      max_amount varchar(100) NOT NULL, 
                      charge varchar(100) NOT NULL, 
-                     active_express int(20) NOT NULL,
-                     express_delivery int(20) NOT NULL,
+                     active_express varchar(100) NOT NULL,
+                     express_delivery varchar(100) NOT NULL,
                      created_dt timestamp NOT NULL,
                      UNIQUE KEY id (id)
                 ) $charset_collate;";
@@ -367,16 +368,17 @@ if (!class_exists('manhattan_shippingClass')) {
     */
     function changeShippingLabe($label, $method){
 
-        $country    = $_COOKIE['easy_country'];
+            $country    = $_COOKIE['easy_country'];
             $state      = $_COOKIE['easy_state'];
             $city       = $_COOKIE['easy_city'];
             $area       = $_COOKIE['easy_area'];
 
          if(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'easy_shipping'):
-            $cartSubTotal = WC()->cart->subtotal;
 
-            $quryRate = $this->wpdb->get_row('SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"', OBJECT);
-            
+            $cartSubTotal = WC()->cart->subtotal;
+            $query_all = 'SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"';
+            $quryRate = $this->wpdb->get_row($query_all, OBJECT);
+
             if($cartSubTotal < $quryRate->min_amount):
                     $more = $quryRate->min_amount - $cartSubTotal;
                     $label = __('Our minimum order amount is '.wc_price($quryRate->min_amount).' please add '.wc_price($more).' more to accept order!', 'easy');
@@ -389,6 +391,7 @@ if (!class_exists('manhattan_shippingClass')) {
             endif;
             return $label;
         elseif(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'express_delivery'):
+
                 $label = $method->get_label() . ' : ' . wc_price($method->cost) . '<span class="easysippingNote">'. get_option( 'express_note', '' ) . '</span>';
                 // echo get_option( 'express_note', '' );
                 return $label;
@@ -420,16 +423,25 @@ if (!class_exists('manhattan_shippingClass')) {
             global $hide_save_button;
             $hide_save_button = true;
 
+             // echo '<pre>';
+             // print_r($_POST);
+             // echo '</pre>';
             if(isset($_POST['express_save'])){
                 foreach($_POST['slot_date'] as $k => $s_slot){
-                    $date = date('Y-m-d', strtotime($s_slot));
+
+                    $s_city = $_POST['city'][$k];
+                    $date = date('Y-m-d', strtotime($_POST['slot_date'][$k]));
                     $s_time = date('H:i:s', strtotime($_POST['s_time'][$k]));
                     $e_time = date('H:i:s', strtotime($_POST['e_time'][$k]));
-                    $cut_off = date('H:i:s', strtotime($_POST['cut_off'][$k]));
+                    $cut_off = date('Y-m-d H:i:s', strtotime($_POST['cut_off'][$k]));
                     
+
+                    echo 'date: ' . $date . '<br/>';
+
                     $insert = $this->wpdb->insert(
                         $this->table_slot, 
                         array(
+                            'city' => $s_city,
                             'slot_date' => $date,
                             's_time' => $s_time,
                             'e_time' => $e_time,
@@ -437,7 +449,7 @@ if (!class_exists('manhattan_shippingClass')) {
                             'order_limit' => $_POST['order_limit'][$k]
                         ),
                         array(
-                            '%s', '%s', '%s', '%s', '%d'
+                            '%s', '%s', '%s', '%s', '%s', '%d'
                         )
                     );
                 }
@@ -508,18 +520,38 @@ if (!class_exists('manhattan_shippingClass')) {
         * Appointment Back office Script
         */
         function manhattan_shipping_backend_script(){
+            $query = 'SELECT id, city FROM '.$this->easy_shipping.' WHERE city!="" GROUP BY city ORDER BY `city` ASC';
+            $all_city = $this->wpdb->get_results($query);
+
             wp_enqueue_style( 'jqueryDataTable', $this->plugin_url . 'asset/css/admin/jquery.dataTables.min.css', array(), true, 'all' );
+            wp_enqueue_style( 'jquerydatetimepicker', $this->plugin_url . 'asset/css/jquery.datetimepicker.css', array(), true, 'all' );
             wp_enqueue_style( 'easycss', $this->plugin_url . 'asset/css/admin/easycss.css', array(), true, 'all' );
             
             wp_enqueue_script( 'jQueryDataTableJS', $this->plugin_url . 'asset/js/admin/jquery.dataTables.min.js', array('jquery'), '9.0.1', true );
+            wp_enqueue_script( 'jQuerydatetimepickerJS', $this->plugin_url . 'asset/js/jquery.datetimepicker.js', array(), '9.1.1', true );
+            wp_enqueue_script( 'momentjs', $this->plugin_url . 'asset/js/moment.js', array(), '9.11.1', true );
+            
             wp_enqueue_script( 'manhattan_shippingjs', $this->plugin_url . 'asset/js/admin/easy.js', array('jquery'), '9.0.2', true );
             wp_localize_script( 'manhattan_shippingjs', 'easyAjax', admin_url( 'admin-ajax.php' ));
+            wp_localize_script( 'manhattan_shippingjs', 'easyVer', json_encode($all_city));
         }
         /*
         * Voteing font Script
         */ 
         function manhattan_shipping_script(){
-            $slots = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJECT);
+            date_default_timezone_set('asia/dhaka');
+            $slots = array();
+            $currentcity = (isset($_COOKIE['easy_city']))?$_COOKIE['easy_city']:0;
+            $cityid = $this->wpdb->get_row('SELECT `id` FROM '.$this->easy_shipping.' WHERE `city`="'.$currentcity.'"', OBJECT);
+            $slotDates = array();
+            
+            if(isset($cityid->id)):
+                $slots = $this->wpdb->get_row('SELECT * FROM '.$this->table_slot.' WHERE `city`='.$cityid->id.'', OBJECT);
+                for($i=0; $i < 14; $i++){
+                    array_push($slotDates, date('Y-m-d', strtotime($slots->slot_date . '+ '.$i.' day')));
+                }
+            endif;
+
             wp_enqueue_style( 'jquerycss', $this->plugin_url . 'asset/jqueryui/jquery-ui.min.css', array(), true, 'all' );
             wp_enqueue_style( 'select2css', $this->plugin_url . 'asset/select2/css/select2.min.css', array(), true, 'all' );
             
@@ -534,7 +566,7 @@ if (!class_exists('manhattan_shippingClass')) {
             wp_enqueue_script( 'jquery-ui-time-addon', $this->plugin_url . 'asset/js/jquery.timepicker.min.js', array(), '1.3.5', true );
             wp_enqueue_script( 'easyshippingjs', $this->plugin_url . 'asset/js/easyshippingjs.min.js', array('jquery', 'select2'), '9.0.2', true );
             wp_localize_script( 'easyshippingjs', 'easyAjax', admin_url( 'admin-ajax.php' ));
-            wp_localize_script( 'easyshippingjs', 'slots', $slots );
+            wp_localize_script( 'easyshippingjs', 'timeslot', array('slots' => $slots, 'slotdates' => $slotDates, 'today'=> date('d-m-Y')) );
         }
      
 
@@ -1418,5 +1450,12 @@ if (!class_exists('manhattan_shippingClass')) {
     die();
    }
 
-    } // End Class
+
+   public function citynamebyid($id){
+       $qry = $this->wpdb->get_row('SELECT `city` FROM '.$this->easy_shipping.' WHERE `id`='.$id.'', OBJECT);
+       return $qry->city;
+   }
+
+   
+} // End Class
 } // End Class check if exist / not 

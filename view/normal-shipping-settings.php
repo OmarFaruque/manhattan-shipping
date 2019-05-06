@@ -24,11 +24,12 @@ $expreses = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJE
 <table id="expressTable" class="form-table wc-express-zone-settings">
 	<thead>
             <tr>
-            <td colspan="6">
+            <td colspan="7">
                 <?php _e('Add time slot for Normal Delivery with specific date. Each time slot are applicable to next two weeks.', 'easy'); ?>
             </td>
             </tr>
             <tr>
+                <th><?php _e('City', 'easy'); ?></th>
                 <th><?php _e('Date', 'easy'); ?></th>
                 <th><?php _e('Start Time', 'easy'); ?></th>
                 <th><?php _e('End time', 'easy'); ?></th>
@@ -41,6 +42,9 @@ $expreses = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJE
     <?php foreach($expreses as $slot): ?>
     <tr>
         <td>
+            <?php echo $this->citynamebyid($slot->city); ?>
+        </td>
+        <td>
             <?php echo date('d M, Y', strtotime($slot->slot_date)); ?>
         </td>
         <td>
@@ -50,7 +54,7 @@ $expreses = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJE
             <?php echo date('h:i a', strtotime($slot->e_time)); ?>
         </td>
         <td>
-            <?php echo date('h:i a', strtotime($slot->cut_off)); ?>
+            <?php echo date('d M, Y - h:i a', strtotime($slot->cut_off)); ?>
         </td>
         <td>
             <?php echo $slot->order_limit; ?>
@@ -61,7 +65,7 @@ $expreses = $this->wpdb->get_results('SELECT * FROM '.$this->table_slot.'', OBJE
 
 
     <tr valign="top" class="">
-				<td colspan="6">
+				<td colspan="7">
                     <p class="addTimeSlot">
                         <span class="dashicons dashicons-plus-alt"></span>
                     </p>

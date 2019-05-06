@@ -27,10 +27,13 @@ echo '<script>
 
 
 if(isset($_COOKIE['easy_state'])){
-  $output = '<div id="deliverAreaReset"><div class="innerD">';
+  $rates = $this->wpdb->get_row('SELECT `charge`, `express_delivery` FROM '.$this->easy_shipping.' WHERE country_name="'.$_COOKIE['easy_country'].'" AND state like "%'.$_COOKIE['easy_state'].'%" AND city="'.$_COOKIE['easy_city'].'" AND delivery_area="'.$_COOKIE['easy_area'].'"', OBJECT);
+  $output = '<div id="deliverAreaReset"><div class="innerD text-right">';
       $output.=($_COOKIE['easy_state'] != 'undefined')?'<span class="state"><b><i>State: '.WC()->countries->get_states( $_COOKIE['easy_country'] )[$_COOKIE['easy_state']].'</i></b></span>':'';
       $output.='<span class="city"><b><i>City: '.$_COOKIE['easy_city'].'</span></i></b>
       <span class="area"><b><i>Delivery Area: '.$_COOKIE['easy_area'].'</span></i></b>
+      <span class="deliveryCharge"><b><i>'.__('Delivery Charge', 'easy').': '.wc_price($rates->charge).'</span></i></b>
+      <span class="deliveryCharge"><b><i>'.__('Express Delivery', 'easy').': '.wc_price($rates->express_delivery).'</span></i></b>
       <span id="changeDeliverAreay"><button type="button" class="btn btn-primary">'.__('Change', 'easy').'</button></span>
   </div></div>';  
 }else{
