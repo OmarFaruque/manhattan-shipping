@@ -632,12 +632,16 @@ if (!class_exists('manhattan_shippingClass')) {
             //$deliverAreas = ($_REQUEST['delivery_area'] != '')?explode('|', $_REQUEST['delivery_area']):array();
             //$data['state'] = json_encode($data['state']);
             $zipesyid = array();
-
+            $s_area = '';           
             if(!isset($data['id'])){
                 $data['delivery_area'] = json_decode(stripslashes($data['delivery_area']));
+                // $data['delivery_area'] = stripslashes($data['delivery_area']);
                 foreach($data['delivery_area'] as $sD):
+                    
                     $sD->charge = ($sD->charge != '')?$sD->charge:0;
                     if($sD->delivery_area != ''){
+                        $s_area .= $sD->delivery_area;
+                        $sD->express_charge = (isset($sD->express_charge))?$sD->express_charge:'';
                         $insert = $this->wpdb->insert(
                             $this->easy_shipping,
                             array(
@@ -651,7 +655,7 @@ if (!class_exists('manhattan_shippingClass')) {
                                  'express_delivery' => $sD->express_charge,
                                  'active_express' => $data['isexpress']
                             ),
-                            array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d')                
+                            array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')                
                         );
 
                         //echo 'last query: ' . $this->wpdb->last_query;
@@ -665,7 +669,7 @@ if (!class_exists('manhattan_shippingClass')) {
                 }
             endforeach;
             }else{
-                $update = $this->wpdb->update(
+                $insert = $this->wpdb->update(
                     $this->easy_shipping,
                     array(
                          'country_name' => $data['country_name'],
@@ -710,12 +714,14 @@ if (!class_exists('manhattan_shippingClass')) {
                 endfor;
             endif;
 
-            $msg = (isset($insert) || isset($update))?'success':'fail';            
+            $msg = (isset($insert))?'success':'fail';            
 
             echo json_encode(
                 array(
                     'message' => $msg,
-                    'data' => $data
+                    'data' => $data,
+                    'delivery_area' => $data['delivery_area'],
+                    's_area' => $s_area
                 )
             );
             die();

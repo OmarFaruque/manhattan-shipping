@@ -112,19 +112,19 @@ jQuery(document).ready(function($){
 				delivery_area: 	deliverJsonArray,
 				action: 		'saveEasyData'
 			};
-			//console.log(formData);
+			console.log(formData);
 		}
 
 		$.ajax({
             type : 'post',
-            dataType: 'html',
+            dataType: 'json',
             data : formData,
             url : easyAjax,
             success:function(data){
 				console.log(data);
                 if(data.message == 'success'){
                 	$("table.wc-shipping-zone-settings").unblock();
-                	//window.location.replace(easy.easy_page);
+                	// window.location.replace(easy.easy_page);
                 }
             }
         });
@@ -497,6 +497,7 @@ jQuery(document).ready(function($){
 			citys +='<option value="'+v.id+'">'+v.city+'</option>';
 		});
 		
+
 
 		var html = '<tr>'
 			+'<td>'
