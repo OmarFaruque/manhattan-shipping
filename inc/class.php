@@ -376,7 +376,7 @@ if (!class_exists('manhattan_shippingClass')) {
          if(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'easy_shipping'):
 
             $cartSubTotal = WC()->cart->subtotal;
-            $query_all = 'SELECT `min_amount`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"';
+            $query_all = 'SELECT `min_amount`, `active_express`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"';
             $quryRate = $this->wpdb->get_row($query_all, OBJECT);
 
             if($cartSubTotal < $quryRate->min_amount):
@@ -387,12 +387,13 @@ if (!class_exists('manhattan_shippingClass')) {
                     $more = $quryRate->max_amount - $cartSubTotal;
                     $label = $method->get_label() . ' : ' .  wc_price($method->cost) . '<span class="easysippingNote">'. __('We offer Free Normal Delivery on '.wc_price($quryRate->max_amount).' or more. Please add '.wc_price($more).' to get free Normal Delivery.', 'easy') . '</span>';
             else:
-                $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
+                // $label = $method->get_label() . ' : ' . __('Free delivery', 'easy');
+                $label = __('Free Normal delivery', 'easy');
             endif;
             return $label;
         elseif(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'express_delivery'):
-
-                $label = $method->get_label() . ' : ' . wc_price($method->cost) . '<span class="easysippingNote">'. get_option( 'express_note', '' ) . '</span>';
+                $expressCost = ($quryRate->active_express == 1) ? wc_price($method->cost) : 'Not Offered';
+                $label = $method->get_label() . ' : ' . $expressCost . '<span class="easysippingNote">'. get_option( 'express_note', '' ) . '</span>';
                 // echo get_option( 'express_note', '' );
                 return $label;
         else:
@@ -653,7 +654,7 @@ if (!class_exists('manhattan_shippingClass')) {
                                  'max_amount' => $sD->max_amount, 
                                  'charge' => $sD->charge, 
                                  'express_delivery' => $sD->express_charge,
-                                 'active_express' => $data['isexpress']
+                                 'active_express' => $sD->isexpress
                             ),
                             array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')                
                         );
