@@ -99,6 +99,7 @@ if (!class_exists('manhattan_shippingClass')) {
 
 
         private function init(){
+            add_action('woocommerce_checkout_update_order_review', array($this, 'checkout_update_refresh_shipping_methods'), 10, 1);
             add_action( 'admin_enqueue_scripts', array($this, 'manhattan_shipping_backend_script') );
             add_action('wp_enqueue_scripts',array($this, 'manhattan_shipping_script') );
             /*Admin enque script*/
@@ -252,6 +253,12 @@ if (!class_exists('manhattan_shippingClass')) {
 
         } // End init()
 
+
+        function checkout_update_refresh_shipping_methods(){
+            wp_redirect( '/' );
+        }
+
+
         function custom_override_checkout_fields( $fields ) {
 
             $fields['shipping']['custom_field'] = array(
@@ -373,11 +380,12 @@ if (!class_exists('manhattan_shippingClass')) {
             $city       = $_COOKIE['easy_city'];
             $area       = $_COOKIE['easy_area'];
 
+            $query_all = 'SELECT `min_amount`, `active_express`, `express_delivery`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"';
+            $quryRate = $this->wpdb->get_row($query_all, OBJECT);
+
          if(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'easy_shipping'):
 
             $cartSubTotal = WC()->cart->subtotal;
-            $query_all = 'SELECT `min_amount`, `active_express`, `max_amount` FROM '.$this->easy_shipping.' WHERE country_name="'.$country.'" AND state like "%'.$state.'%" AND city="'.$city.'" AND delivery_area="'.$area.'"';
-            $quryRate = $this->wpdb->get_row($query_all, OBJECT);
 
             if($cartSubTotal < $quryRate->min_amount):
                     $more = $quryRate->min_amount - $cartSubTotal;
@@ -393,6 +401,7 @@ if (!class_exists('manhattan_shippingClass')) {
             return $label;
         elseif(isset($_COOKIE['easy_area']) && $method->get_method_id() == 'express_delivery'):
                 $expressCost = ($quryRate->active_express == 1) ? wc_price($method->cost) : 'Not Offered';
+                if($quryRate->active_express == 1 && $quryRate->express_delivery <= 0) $expressCost = 'Free Express Delivery';
                 $label = $method->get_label() . ' : ' . $expressCost . '<span class="easysippingNote">'. get_option( 'express_note', '' ) . '</span>';
                 // echo get_option( 'express_note', '' );
                 return $label;
@@ -567,7 +576,12 @@ if (!class_exists('manhattan_shippingClass')) {
             wp_enqueue_script( 'jquery-ui-time-addon', $this->plugin_url . 'asset/js/jquery.timepicker.min.js', array(), '1.3.5', true );
             wp_enqueue_script( 'easyshippingjs', $this->plugin_url . 'asset/js/easyshippingjs.min.js', array('jquery', 'select2'), '9.0.2', true );
             wp_localize_script( 'easyshippingjs', 'easyAjax', admin_url( 'admin-ajax.php' ));
-            wp_localize_script( 'easyshippingjs', 'timeslot', array('slots' => $slots, 'slotdates' => $slotDates, 'today'=> date('d-m-Y')) );
+            wp_localize_script( 'easyshippingjs', 'timeslot', array(
+                'slots' => $slots, 
+                'slotdates' => $slotDates, 
+                'today'=> date('d-m-Y'),
+                'express_cut_time' => get_option( 'cut_off_time', '' )
+            ));
         }
      
 
@@ -1095,6 +1109,31 @@ if (!class_exists('manhattan_shippingClass')) {
     * Add Extra Shipping Field 
     */
     function easy_woocommerce_shipping_fields($fields){
+
+
+        global $woocommerce;
+        $chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
+        $chosen_shipping = $chosen_methods[0];
+
+
+
+
+        $slots = array();
+        $currentcity = (isset($_COOKIE['easy_city']))?$_COOKIE['easy_city']:0;
+        $cityid = $this->wpdb->get_row('SELECT `id` FROM '.$this->easy_shipping.' WHERE `city`="'.$currentcity.'"', OBJECT);
+        $slotDates = array();
+        
+        if(isset($cityid->id)):
+            $slots = $this->wpdb->get_row('SELECT * FROM '.$this->table_slot.' WHERE `city`='.$cityid->id.'', OBJECT);
+            if($slots):
+                for($i=0; $i < 14; $i++){
+                    array_push($slotDates, date('Y-m-d', strtotime($slots->slot_date . '+ '.$i.' day')));
+                }
+            endif;
+        endif;
+
+
+
          $fields['shipping_area'] = array(
             'label' => __('Neighbourhood Area', 'easy'), // Add custom field label
             'required' => true, // if field is required or not
@@ -1105,23 +1144,36 @@ if (!class_exists('manhattan_shippingClass')) {
             'custom_attributes' => array('readonly' => true)
         );
 
-        $fields['date_slot'] = array(
-            'label' => __('Date', 'easy'), // Add custom field label
-            'required' => true, // if field is required or not
-            'clear' => false, // add clear or not
-            'type' => 'text', // add field type
-            'class' => array('datepicker_date_slot'),    // add class name
-            'custom_attributes' => array()
-        );
+        
+        
+            $fields['date_slot'] = array(
+                'label' => __('Delivery Date', 'easy'), // Add custom field label
+                'required' => true, // if field is required or not
+                'clear' => false, // add clear or not
+                'type' => 'text', // add field type
+                'class' => array('datepicker_date_slot'),    // add class name
+                'custom_attributes' => array()
+            );
 
-        $fields['time_slot'] = array(
-            'label' => __('Time', 'easy'), // Add custom field label
-            'required' => true, // if field is required or not
-            'clear' => false, // add clear or not
-            'type' => 'text', // add field type
-            'class' => array('datepicker_time_slot'),    // add class name
-            'custom_attributes' => array()
-        );
+            $fields['time_slot'] = array(
+                'label' => __('Delivery Time', 'easy'), // Add custom field label
+                'required' => true, // if field is required or not
+                'clear' => false, // add clear or not
+                'type' => 'text', // add field type
+                'class' => array('datepicker_time_slot'),    // add class name
+                'custom_attributes' => array()
+            );
+        
+
+        // Cutoff time for express delivery
+            $fields['exp_time_slot'] = array(
+                'label' => __('Delivery Time', 'easy'), // Add custom field label
+                'required' => true, // if field is required or not
+                'clear' => false, // add clear or not
+                'type' => 'text', // add field type
+                'class' => array('express_time_slot'),    // add class name
+                'custom_attributes' => array()
+            );
         
         $fields['shipping_state']['custom_attributes'] = array('readonly' => true, 'disabled' => true);
         $fields['shipping_city']['custom_attributes'] = array('readonly' => true);
@@ -1129,6 +1181,8 @@ if (!class_exists('manhattan_shippingClass')) {
         $fields['shipping_country']['custom_attributes'] = array('readonly' => true, 'disabled' => true);
     return $fields;
     } // End custom_woocommerce_shipping_fields();
+
+    
 
 
     /*

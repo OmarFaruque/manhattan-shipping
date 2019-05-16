@@ -38,6 +38,7 @@ if(isset($_COOKIE['easy_state'])){
         $output.='<span class="deliveryCharge"><b><i>'.__('Free Normal Delivery', 'easy').'</span></i></b>';
       endif;
       $expressDelivery = ($rates->active_express == 1) ? wc_price($rates->express_delivery) : 'Not Offered';
+      if($rates->active_express == 1 && $rates->express_delivery <= 0) $expressDelivery = 'Free Express Delivery';
       $output.='<span class="deliveryCharge"><b><i>'.__('Express Delivery', 'easy').': '.$expressDelivery.'</span></i></b>
       <span id="changeDeliverAreay"><button type="button" class="btn btn-primary">'.__('Change', 'easy').'</button></span>
   </div></div>';  
