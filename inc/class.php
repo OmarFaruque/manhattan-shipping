@@ -245,13 +245,78 @@ if (!class_exists('manhattan_shippingClass')) {
             add_action('wp_ajax_nopriv_getTimeForSelectedDate', array($this, 'getTimeForSelectedDate'));
             add_action( 'wp_ajax_getTimeForSelectedDate', array($this, 'getTimeForSelectedDate') );
             
+            
+            //City Metabox for Variation product
+            add_action( 'woocommerce_variation_options_pricing', array($this, 'woo_easy_variable_fields'), 10, 3 );
 
+            // Save VAriation prouct
+            add_action( 'woocommerce_save_product_variation', array($this, 'easy_save_custom_field_variations'), 10, 2 );
 
+            // Change variation product price
+            // Variable
+            add_filter('woocommerce_product_variation_get_regular_price', array($this, 'easy_custom_price'), 99, 2 );
+            add_filter('woocommerce_product_variation_get_price', array($this, 'easy_custom_sales_price') , 99, 2 );
+
+            // Variations (of a variable product)
+            add_filter('woocommerce_variation_prices_price', array($this, 'easy_custom_variation_price'), 99, 3 );
+            add_filter('woocommerce_variation_prices_regular_price', array($this, 'easy_custom_variation_price'), 99, 3 );
             
             endif;
 
 
         } // End init()
+
+
+
+        function easy_custom_sales_price( $price, $product ) {
+            // Delete product cached price  (if needed)
+            // update_post_meta( $variation_id, '_vri_sales_price_' . $k, $sales_price[$k][$l] );
+            // wc_delete_product_transients($product->get_id());
+            $variation_id = $product->get_id();
+            if(isset($_COOKIE['easy_city'])){
+                $cityname = $_COOKIE['easy_city'];
+                $terms = get_term_by('name', $cityname, 'available-city');
+                $term_id = $terms->term_id;
+
+                $SPrice = get_post_meta( $variation_id, '_vri_sales_price_'.$term_id, true );
+            }
+            $new_price = (isset($_COOKIE['easy_city']) && $SPrice)?$SPrice:$price;//$original_price * 2;
+            return $new_price; // Sales price
+        }
+        
+        function easy_custom_price( $price, $product ) {
+            // Delete product cached price  (if needed)
+            // update_post_meta( $variation_id, '_vri_sales_price_' . $k, $sales_price[$k][$l] );
+            // wc_delete_product_transients($product->get_id());
+            $variation_id = $product->get_id();
+            if(isset($_COOKIE['easy_city'])){
+                $cityname = $_COOKIE['easy_city'];
+                $terms = get_term_by('name', $cityname, 'available-city');
+                $term_id = $terms->term_id;
+
+                $SPrice = get_post_meta( $variation_id, '_vri_elp_price_'.$term_id, true );
+            }
+            $new_price = (isset($_COOKIE['easy_city']) && $SPrice)?$SPrice:$price;//$original_price * 2;
+            return $new_price; // regular price
+        }
+        
+        function easy_custom_variation_price( $price, $variation, $product ) {
+            // Delete product cached price  (if needed)
+            // update_post_meta( $variation_id, '_vri_elp_price_' . $k, $s );
+            // wc_delete_product_transients($variation->get_id());
+
+            $variation_id = $variation->get_id();
+            if(isset($_COOKIE['easy_city'])){
+                $cityname = $_COOKIE['easy_city'];
+                $terms = get_term_by('name', $cityname, 'available-city');
+                $term_id = $terms->term_id;
+  
+                $lPrice = get_post_meta( $variation_id, '_vri_elp_price_'.$term_id, true );
+            }
+            //Logic for calculating the new price here
+            $rnew_price = (isset($_COOKIE['easy_city']) && $lPrice)?$lPrice:$price;
+            return $rnew_price; // New price for if city set
+        }
 
 
         function checkout_update_refresh_shipping_methods(){
@@ -1065,6 +1130,9 @@ if (!class_exists('manhattan_shippingClass')) {
          $product->save();
     } // End Class
 
+
+
+
     function easyAdminheadHook(){
         $newentry = (isset($_REQUEST['zone_id']) && $_REQUEST['zone_id'] == 'new')?'new':'edit';
         echo '<script>
@@ -1515,6 +1583,73 @@ if (!class_exists('manhattan_shippingClass')) {
    public function citynamebyid($id){
        $qry = $this->wpdb->get_row('SELECT `city` FROM '.$this->easy_shipping.' WHERE `id`='.$id.'', OBJECT);
        return $qry->city;
+   }
+
+   public function woo_easy_variable_fields( $loop, $variation_data, $variation ){
+
+    $metas          = get_post_meta( $variation->ID, '_vri_elp_price', true );
+    $meta_sales     = get_post_meta( $variation->ID, '_vri_sales_price', true );
+
+    global $post;      
+    $postAllLPrices = $this->wpdb->get_results('SELECT * FROM '.$this->postmeta.' WHERE meta_key LIKE "_vri_elp_price_%" AND post_id='.$variation->ID.'', OBJECT);
+
+    $postAllSalesPrices = $this->wpdb->get_results('SELECT * FROM '.$this->postmeta.' WHERE meta_key LIKE "_vri_sales_price_%" AND post_id='.$variation->ID.'', OBJECT);
+
+
+
+    $existTerms = array();
+    foreach($postAllLPrices as $sTerm){
+        $sKey = str_replace('_vri_elp_price_', '', $sTerm->meta_key);
+        array_push($existTerms, (int)$sKey);
+    }
+
+
+    $terms = get_terms([
+        'taxonomy' => 'available-city',
+        'hide_empty' => false,
+    ]);
+
+    $cityOption = array(''=>'Select City Name..');
+    foreach($terms as $sty){
+      if(!in_array($sty->term_id, $existTerms)) $cityOption[$sty->term_id] = $sty->name;  
+    } 
+    $select_field = array(
+        'id' => 'variation_cityprice',
+        'label' => __( 'Location Based price ('.get_woocommerce_currency_symbol().')' , 'easy' ),
+        'options' => $cityOption,
+        'desc_tip' => 'true',
+        'description' => __('Product Price for Different Location.', 'easy')
+    );
+
+    woocommerce_wp_select( $select_field );
+
+        foreach($postAllLPrices as $k => $sk){
+            $locationKey = str_replace('_vri_elp_price_', '', $sk->meta_key);
+            $getTerm = get_term_by('id', (int)$locationKey, 'available-city');
+
+            echo '<div class="locationpricesinglewrap">
+            <p class="form-field singleLocationPrice">
+            <label for="elp_price"><strong>'.$getTerm->name.'</strong> ('.__('Regular price', 'easy').')</label>
+            <input type="number" step="0.01" min="0" class="short" style="" name="_vri_elp_price['.$loop.']['.$locationKey.'][]" id="_elp_price_'.$locationKey.'" value="'.$sk->meta_value.'" placeholder=""><span class="deletelocationPrice" data-name="'.$getTerm->name.'" data-tax_id="'.$locationKey.'"><span class="dashicons dashicons-no-alt"></span></span></p>
+
+                <p class="form-field singleRegularLocationPrice"><label for="elp_sales_price"><strong>'.$getTerm->name.'</strong> ('.__('Sales price', 'easy').')</label><input type="number" class="short" style="" step="0.01" min="0" name="_vri_sales_price['.$loop.']['.$locationKey.'][]" id="_elp_sales_price_'.$loop .'_'.$locationKey.'" value="'.$postAllSalesPrices[$k]->meta_value.'" placeholder=""></p>
+            </div>';
+        }
+   }
+
+
+   public function easy_save_custom_field_variations($variation_id, $i){
+       
+    $regular_price  = isset( $_POST['_vri_elp_price'][$i] ) ? $_POST['_vri_elp_price'][$i] : array();
+    $sales_price    = isset( $_POST['_vri_sales_price'][$i] ) ? $_POST['_vri_sales_price'][$i] : array();
+
+    foreach($regular_price as $k => $slP):
+        foreach($slP as $l => $s):
+            update_post_meta( $variation_id, '_vri_elp_price_' . $k, $s );
+            update_post_meta( $variation_id, '_vri_sales_price_' . $k, $sales_price[$k][$l] );
+        endforeach;
+    endforeach;
+
    }
 
    

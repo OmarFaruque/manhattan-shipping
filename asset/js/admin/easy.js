@@ -216,16 +216,35 @@ jQuery(document).ready(function($){
 
 
 	/////================= Location Based Price ====================//
-	jQuery(document).on('change', 'select#cityprice', function(){
+	jQuery(document).on('change', 'select#cityprice, select#variation_cityprice', function(){
 		var thisText = jQuery(this).find('option:selected').text();
-		var thisVal = $('select[name="cityprice"]').val();
-		var output = '<div class="locationpricesinglewrap"><p class="form-field singleLocationPrice">';
-		output +='<label for="elp_price"><strong>'+thisText+'</strong> (Regular price)</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_price['+thisVal+']" id="_elp_price_'+thisVal+'" value="" placeholder=""><span class="deletelocationPrice"><span class="dashicons dashicons-no-alt"></span></span>';
-		output +='</p>';
-		output += '<p class="form-field singleRegularLocationPrice">';
-		output +='<label for="elp_sales_price"><strong>'+thisText+'</strong> (Sales price)</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_sales_price['+thisVal+']" id="_elp_sales_price_'+thisVal+'" value="" placeholder="">';
-		output +='</p></div>';
-		jQuery(output).insertAfter(jQuery(this).closest('p.cityprice_field'));
+		var thisVal = $(this).val();
+		
+
+		if(jQuery(this).attr('id') == 'cityprice'){
+			var output = '<div class="locationpricesinglewrap"><p class="form-field singleLocationPrice">';
+			output +='<label for="elp_price"><strong>'+thisText+'</strong> (Regular price)</label>';
+			output +='<input type="number" class="short" style="" step="0.01" min="0" name="_elp_price['+thisVal+']" id="_elp_price_'+thisVal+'" value="" placeholder=""><span class="deletelocationPrice"><span class="dashicons dashicons-no-alt"></span></span>';
+			output +='</p>';
+			output += '<p class="form-field singleRegularLocationPrice">';
+			output +='<label for="elp_sales_price"><strong>'+thisText+'</strong> (Sales price)</label><input type="number" class="short" style="" step="0.01" min="0" name="_elp_sales_price['+thisVal+']" id="_elp_sales_price_'+thisVal+'" value="" placeholder="">';
+			output +='</p></div>';
+			jQuery(output).insertAfter(jQuery(this).closest('p.cityprice_field'));
+		}else{
+			var loopvalue = jQuery('.woocommerce_variation').index(jQuery(this).closest('.woocommerce_variation'));
+			
+			var output = '<div class="locationpricesinglewrap"><p class="form-field singleLocationPrice">';
+			output +='<label for="elp_price"><strong>'+thisText+'</strong> (Regular price)</label>';
+			output +='<input type="number" class="short" style="" step="0.01" min="0" name="_vri_elp_price['+loopvalue+']['+thisVal+'][]" id="_elp_price_'+thisVal+'" value="" placeholder="">'
+			output +='<span class="deletelocationPrice"><span class="dashicons dashicons-no-alt"></span></span>';
+			output +='</p>';
+			output +='<p class="form-field singleRegularLocationPrice">';
+			output +='<label for="elp_sales_price"><strong>'+thisText+'</strong> (Sales price)</label>'
+			output +='<input type="number" class="short" style="" step="0.01" min="0" name="_vri_sales_price['+loopvalue+']['+thisVal+'][]" id="_elp_sales_price_'+thisVal+'" value="" placeholder="">';
+			output +='</p></div>';
+			jQuery(output).insertAfter(jQuery(this).closest('p.variation_cityprice_field'));
+		}
+
 		jQuery(this).find('option:selected').remove();
 	});
 	
@@ -251,7 +270,7 @@ jQuery(document).ready(function($){
             data : fdata,
             url : easyAjax,
             success:function(data){
-            	console.log(data);
+            	// console.log(data);
                 if(data.message == 'success'){
                 	$("#woocommerce-product-data").unblock();
                 	select.append(newOp);
