@@ -511,7 +511,7 @@ if (!class_exists('manhattan_shippingClass')) {
                     $cut_off = date('Y-m-d H:i:s', strtotime($_POST['cut_off'][$k]));
                     
 
-                    echo 'date: ' . $date . '<br/>';
+                    // echo 'date: ' . $date . '<br/>';
 
                     $insert = $this->wpdb->insert(
                         $this->table_slot, 
